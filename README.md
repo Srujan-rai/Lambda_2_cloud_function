@@ -36,10 +36,6 @@ Save the script as a Python file (e.g., `lambda_to_gcp_converter.py`). You can t
 python lambda_to_gcp_converter.py <function_name> [options]
 ```
 
-Here is the content converted into Markdown (`.md`) format:
-
-# AWS Lambda to Google Cloud Function Converter
-
 ## Command-Line Arguments
 
 ### `function_name` (Required)
@@ -55,8 +51,6 @@ Specifies the output directory where the converted Google Cloud Function files w
 ```bash
 --output ./my_converted_functions/my_gcp_lambda
 ```
-
-````
 
 ### `--region <aws_region>` (Optional)
 
@@ -169,7 +163,7 @@ The script will create an output directory (default or specified via `--output`)
 
 ## Important Limitations
 
->  This tool is only a **starting point**. Significant **manual effort** is required.
+> This tool is only a **starting point**. Significant **manual effort** is required.
 
 - ** No Code Logic Conversion:**
   AWS SDK calls (e.g., `boto3`) are not converted to Google Cloud SDKs.
@@ -202,4 +196,3 @@ The script will create an output directory (default or specified via `--output`)
 
 Let me know if you'd like this saved as a `.md` file or need help formatting it for GitHub, a documentation site, or something else!
 ```
-````
