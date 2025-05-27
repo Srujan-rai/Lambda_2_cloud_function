@@ -165,16 +165,16 @@ The script will create an output directory (default or specified via `--output`)
 
 > This tool is only a **starting point**. Significant **manual effort** is required.
 
-- ** No Code Logic Conversion:**
+- **No Code Logic Conversion:**
   AWS SDK calls (e.g., `boto3`) are not converted to Google Cloud SDKs.
 
-- **❌ No IAM Translation:**
+- **No IAM Translation:**
   AWS IAM roles/policies must be manually mapped to GCP IAM permissions.
 
-- **❌ Trigger Adaptation Limited:**
+- **Trigger Adaptation Limited:**
   Only HTTP triggers are prepared. Other triggers (e.g., S3, SQS) require manual adaptation.
 
-- **❌ No Lambda Layer Conversion:**
+- **No Lambda Layer Conversion:**
   Lambda Layers must be manually integrated into GCP.
 
 ---
