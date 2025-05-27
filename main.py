@@ -297,126 +297,153 @@ def convert_to_gcp_function(aws_function_name_for_readme, extract_path, output_p
                 f.write("# Replace AWS SDK dependencies (like boto3) with their Google Cloud equivalents.\n")
             logging.info(f"Created a new 'requirements.txt' as none was found in the Lambda package.")
 
-        # --- 5. Add CONVERSION_README.md with crucial manual steps ---
-        current_datetime_iso = datetime.datetime.now().isoformat() # Get current timestamp
-        readme_content = f"""# AWS Lambda to Google Cloud Function Conversion Report
+        # --- README content generation (v6 - with explicit return value section) ---
+        readme_parts = []
+        current_datetime_iso = datetime.datetime.now().isoformat()
 
-**DATE:** {current_datetime_iso}
+        readme_parts.append(f"# AWS Lambda to Google Cloud Function Conversion Report\n\n")
+        readme_parts.append(f"**DATE:** {current_datetime_iso}\n\n")
+        readme_parts.append(f"## Original AWS Lambda Details\n")
+        readme_parts.append(f"- **Function Name (AWS):** `{aws_function_name_for_readme}`\n")
+        readme_parts.append(f"- **Handler (AWS Config):** `{lambda_handler_file_from_aws or 'N/A'}.{lambda_handler_function_from_aws}`\n")
+        readme_parts.append(f"- **Resolved Handler File in Zip:** `{resolved_handler_file_name_in_zip or 'Could not resolve / Not applicable'}`\n")
+        readme_parts.append(f"- **Original Runtime (AWS):** `{lambda_runtime}`\n")
+        readme_parts.append(f"- **Original Timeout (AWS):** `{lambda_timeout} seconds`\n")
+        readme_parts.append(f"- **Original Memory (AWS):** `{lambda_memory} MB`\n\n")
 
-## Original AWS Lambda Details
-- **Function Name (AWS):** `{aws_function_name_for_readme}`
-- **Handler (AWS Config):** `{lambda_handler_file_from_aws or 'N/A'}.{lambda_handler_function_from_aws}`
-- **Resolved Handler File in Zip:** `{resolved_handler_file_name_in_zip or 'Could not resolve / Not applicable'}`
-- **Original Runtime (AWS):** `{lambda_runtime}`
-- **Original Timeout (AWS):** `{lambda_timeout} seconds`
-- **Original Memory (AWS):** `{lambda_memory} MB`
+        readme_parts.append(f"## Conversion Summary & CRITICAL Manual Steps Required:\n\n")
+        readme_parts.append(
+            "This script provides a **basic structural conversion**. It **DOES NOT** automatically handle code logic, SDK calls, IAM permissions, or complex trigger differences. "
+            "**Significant manual review and code adaptation are ESSENTIAL for a successful migration.**\n\n"
+        )
 
-## Conversion Summary & CRITICAL Manual Steps Required:
+        readme_parts.append(f"### 1. Review `main.py` (Converted Handler Code)\n")
+        readme_parts.append(f"   - **Entry Point Signature:** The AWS Lambda handler function (`{lambda_handler_function_from_aws}`) has had its signature changed to `def main(request):` in `main.py`. This assumes a **HTTP-triggered** Google Cloud Function by default.\n")
+        readme_parts.append(f"   - **Event Data (`{original_event_param_name_in_code}` variable in `main.py`):**\n")
+        readme_parts.append(f"     - The script attempts to derive this from `request.get_json()`. For HTTP triggers, this is often the request body.\n")
+        readme_parts.append(f"     - **CRITICAL:** If your Lambda was triggered by non-HTTP events (e.g., S3, SQS, Kinesis), the `event` structure is different. You **MUST** adapt `main.py` to correctly parse the `request` object (for HTTP triggers) or the `event` and `context` parameters (for background triggers like Pub/Sub, GCS) according to the GCP trigger you configure. Consult GCP documentation for specific event payloads.\n")
+        readme_parts.append(f"   - **AWS `context` Object:**\n")
+        readme_parts.append(f"     - The AWS Lambda `context` object (and its methods/attributes) **IS NOT AVAILABLE** in GCP HTTP functions in the same way. Code using it **MUST BE REMOVED OR REFACTORED.**\n")
+        readme_parts.append(f"     - GCP background functions receive a `google.cloud.functions.Context` object, which is different from AWS Lambda's.\n")
+        readme_parts.append(f"   - **HTTP Function Return Values (CRITICAL for HTTP Triggers):**\n")
+        readme_parts.append(f"     - AWS Lambda (via API Gateway proxy integration) often returns a dictionary like: `{{'statusCode': 200, 'body': '...', 'headers': {{...}}}}`.\n")
+        readme_parts.append(f"     - Google Cloud Functions (HTTP-triggered) **DO NOT** automatically interpret this format. They expect a Flask-compatible return: a string, a tuple `(response_body_str, status_code_int, headers_dict)`, or a Flask `Response` object.\n")
+        readme_parts.append(f"     - **If your function returns the AWS-style dictionary, it will likely cause an `InvalidTargetTypeException` or similar error in GCP.**\n")
+        readme_parts.append(f"     - **MANUAL ACTION REQUIRED:** You MUST modify your function's `return` statements.\n")
+        readme_parts.append(f"       - **Example AWS Lambda return:**\n")
+        readme_parts.append(f"         ```python\n")
+        readme_parts.append(f"         return {{\n")
+        readme_parts.append(f"             'statusCode': 200,\n")
+        readme_parts.append(f"             'headers': {{'Content-Type': 'application/json'}},\n")
+        readme_parts.append(f"             'body': json.dumps({{'message': 'success'}})\n")
+        readme_parts.append(f"         }}\n")
+        readme_parts.append(f"         ```\n")
+        readme_parts.append(f"       - **Example GCP compatible return (tuple format):**\n")
+        readme_parts.append(f"         ```python\n")
+        readme_parts.append(f"         # import json # if returning JSON\n")
+        readme_parts.append(f"         # from flask import make_response # Optional, for more control\n")
+        readme_parts.append(f"         status = 200\n")
+        readme_parts.append(f"         headers = {{'Content-Type': 'application/json'}}\n")
+        readme_parts.append(f"         body = json.dumps({{'message': 'success'}})\n")
+        readme_parts.append(f"         return (body, status, headers)\n")
+        readme_parts.append(f"         # Alternatively, using Flask's make_response:\n")
+        readme_parts.append(f"         # resp = make_response(body, status)\n")
+        readme_parts.append(f"         # resp.headers['Content-Type'] = 'application/json'\n")
+        readme_parts.append(f"         # return resp\n")
+        readme_parts.append(f"         ```\n\n")
 
-This script provides a **basic structural conversion**. It **DOES NOT** automatically handle code logic, SDK calls, IAM permissions, or complex trigger differences. **Significant manual review and code adaptation are ESSENTIAL for a successful migration.**
 
-### 1. Review `main.py` (Converted Handler Code)
-   - **Entry Point:** The AWS Lambda handler function (`{lambda_handler_function_from_aws}`) has been converted (or attempted to be converted) to `def main(request):` in `main.py`. This assumes a **HTTP-triggered** Google Cloud Function by default.
-   - **Event Data (`{original_event_param_name_in_code}` variable in `main.py`):**
-     - The script attempts to derive this from `request.get_json()`.
-     - **CRITICAL:** If your Lambda was triggered by S3, SQS, Kinesis, DynamoDB Streams, CloudWatch Events, etc., the event structure is different. You **MUST** adapt `main.py` to correctly parse the `request` object (for HTTP triggers) or the `event` and `context` parameters (for background triggers like Pub/Sub, GCS) according to the GCP trigger you configure. Consult GCP documentation for specific event payloads.
-   - **AWS `context` Object:**
-     - The AWS Lambda `context` object (and its methods like `get_remaining_time_in_millis()`, attributes like `function_name`, `aws_request_id`, `log_stream_name`) **IS NOT AVAILABLE** in GCP HTTP functions.
-     - Any code relying on the AWS `context` object **MUST BE REMOVED OR REFACTORED.**
-     - GCP background functions receive a `google.cloud.functions.Context` object, which has a different structure and purpose.
+        readme_parts.append(f"### 2. Update `requirements.txt` (Dependencies)\n")
+        readme_parts.append(f"   - **CRITICAL: Replace AWS SDKs and AWS-specific libraries.**\n")
+        readme_parts.append(f"     - `boto3`, `aws-lambda-powertools`, etc., **WILL NOT WORK** in GCP.\n")
+        readme_parts.append(f"     - Replace them with their Google Cloud equivalents (e.g., `google-cloud-storage`, `google-cloud-pubsub`, `google-cloud-firestore`, `google-cloud-logging`).\n")
+        readme_parts.append(f"   - Ensure all other dependencies are compatible with your target GCP Python runtime.\n")
+        readme_parts.append(f"   - Add `functions-framework` if not already present, as it's often used by GCP Python functions.\n")
+        readme_parts.append(f"   - Remove any libraries that were provided by the AWS Lambda runtime environment if they are not explicitly needed.\n\n")
 
-### 2. Update `requirements.txt` (Dependencies)
-   - **CRITICAL: Replace AWS SDKs and AWS-specific libraries.**
-     - `boto3`, `aws-lambda-powertools`, etc., **WILL NOT WORK** in GCP.
-     - Replace them with their Google Cloud equivalents (e.g., `google-cloud-storage`, `google-cloud-pubsub`, `google-cloud-firestore`, `google-cloud-logging`).
-   - Ensure all other dependencies are compatible with your target GCP Python runtime.
-   - Add `functions-framework` if not already present, as it's often used by GCP Python functions.
-   - Remove any libraries that were provided by the AWS Lambda runtime environment if they are not explicitly needed.
-
-### 3. Configure Environment Variables in GCP
-   - Original AWS Lambda environment variables:
-```
-"""
+        readme_parts.append(f"### 3. Configure Environment Variables in GCP\n")
+        readme_parts.append(f"   - Original AWS Lambda environment variables:\n```\n")
         if lambda_env_vars:
             for key, value in lambda_env_vars.items():
-                readme_content += f"     {key}: {value}\n"
+                readme_parts.append(f"     {key}: {value}\n")
         else:
-            readme_content += "     None configured.\n"
-        readme_content += """```
-   - **CRITICAL: Manually configure these or their equivalents in your Google Cloud Function deployment.** Use Secret Manager for sensitive values.
+            readme_parts.append("     None configured.\n")
+        readme_parts.append("```\n")
+        readme_parts.append(f"   - **CRITICAL: Manually configure these or their equivalents in your Google Cloud Function deployment.** Use Secret Manager for sensitive values.\n\n")
 
-### 4. Set Up IAM Permissions / Service Accounts in GCP
-   - The AWS Lambda's IAM execution role **has not been translated.**
-   - **CRITICAL: Create or assign an appropriate IAM service account for your Google Cloud Function.** Grant it the necessary roles/permissions on GCP resources (e.g., `roles/storage.objectAdmin` to access Cloud Storage, `roles/pubsub.publisher` to publish to Pub/Sub, `roles/logging.logWriter` for explicit logging permissions if needed).
+        readme_parts.append(f"### 4. Set Up IAM Permissions / Service Accounts in GCP\n")
+        readme_parts.append(f"   - The AWS Lambda's IAM execution role **has not been translated.**\n")
+        readme_parts.append(f"   - **CRITICAL: Create or assign an appropriate IAM service account for your Google Cloud Function.** Grant it the necessary roles/permissions on GCP resources (e.g., `roles/storage.objectAdmin` to access Cloud Storage, `roles/pubsub.publisher` to publish to Pub/Sub, `roles/logging.logWriter` for explicit logging permissions if needed).\n\n")
 
-### 5. Define Triggers in GCP
-   - The conversion script defaults to an HTTP trigger structure for `main.py`.
-   - **CRITICAL:** If your Lambda used a non-HTTP trigger (e.g., S3, SQS, DynamoDB, CloudWatch Events):
-     - Choose the equivalent trigger in Google Cloud Functions (e.g., Cloud Storage trigger, Pub/Sub trigger, Firestore trigger, Eventarc trigger).
-     - **Adapt `main.py`'s entry point signature.** For background functions, it's typically `def main(event, context):`. The `event` and `context` parameters are specific to the GCP trigger type (e.g., `event` for GCS contains GCS object metadata; `context` for background functions is `google.cloud.functions.Context`).
-     - Update the `gcloud functions deploy` command with the correct `--trigger-...` flags (e.g., `--trigger-bucket`, `--trigger-topic`, `--trigger-event`).
+        readme_parts.append(f"### 5. Define Triggers in GCP\n")
+        readme_parts.append(f"   - The conversion script defaults to an HTTP trigger structure for `main.py`.\n")
+        readme_parts.append(f"   - **CRITICAL:** If your Lambda used a non-HTTP trigger (e.g., S3, SQS, DynamoDB, CloudWatch Events):\n")
+        readme_parts.append(f"     - Choose the equivalent trigger in Google Cloud Functions (e.g., Cloud Storage trigger, Pub/Sub trigger, Firestore trigger, Eventarc trigger).\n")
+        readme_parts.append(f"     - **Adapt `main.py`'s entry point signature.** For background functions, it's typically `def main(event, context):`. The `event` and `context` parameters are specific to the GCP trigger type (e.g., `event` for GCS contains GCS object metadata; `context` for background functions is `google.cloud.functions.Context`).\n")
+        readme_parts.append(f"     - Update the `gcloud functions deploy` command with the correct `--trigger-...` flags (e.g., `--trigger-bucket`, `--trigger-topic`, `--trigger-event`).\n\n")
 
-### 6. Handle AWS Lambda Layers
-"""
+        readme_parts.append(f"### 6. Handle AWS Lambda Layers\n")
         if lambda_layers:
-            readme_content += "   - This Lambda function utilized the following layers:\n"
+            readme_parts.append("   - This Lambda function utilized the following layers:\n")
             for layer in lambda_layers:
-                readme_content += f"     - {layer['Arn']}\n"
-            readme_content += "   - **Layer code and dependencies ARE NOT automatically downloaded or converted by this script.**\n"
-            readme_content += "   - **CRITICAL: You must manually:** \n"
-            readme_content += "       1. Identify the contents (code and dependencies) of these layers.\n"
-            readme_content += "       2. Integrate their functionality and dependencies directly into the GCP function's `main.py`, other source files, or `requirements.txt`.\n"
-            readme_content += "       3. Alternatively, for shared code in GCP, explore options like creating custom packages in Artifact Registry or using private Git repositories.\n"
+                readme_parts.append(f"     - {layer['Arn']}\n")
+            readme_parts.append("   - **Layer code and dependencies ARE NOT automatically downloaded or converted by this script.**\n")
+            readme_parts.append("   - **CRITICAL: You must manually:** \n")
+            readme_parts.append("       1. Identify the contents (code and dependencies) of these layers.\n")
+            readme_parts.append("       2. Integrate their functionality and dependencies directly into the GCP function's `main.py`, other source files, or `requirements.txt`.\n")
+            readme_parts.append("       3. Alternatively, for shared code in GCP, explore options like creating custom packages in Artifact Registry or using private Git repositories.\n")
         else:
-            readme_content += "   - No Lambda layers were detected for this function.\n"
+            readme_parts.append("   - No Lambda layers were detected for this function.\n")
+        readme_parts.append("\n")
 
-        readme_content += f"""
-### 7. Configure Runtime, Timeout, and Memory in GCP
-   - Original AWS Lambda settings: Runtime `{lambda_runtime}`, Timeout `{lambda_timeout}s`, Memory `{lambda_memory}MB`.
-   - For GCP, choose a compatible Python runtime (e.g., `python39`, `python310`, `python311`, `python312`).
-   - Configure `--timeout` and `--memory` for the GCP function during deployment. GCP has different limits, defaults, and supported values.
+        readme_parts.append(f"### 7. Configure Runtime, Timeout, and Memory in GCP\n")
+        readme_parts.append(f"   - Original AWS Lambda settings: Runtime `{lambda_runtime}`, Timeout `{lambda_timeout}s`, Memory `{lambda_memory}MB`.\n")
+        readme_parts.append(f"   - For GCP, choose a compatible Python runtime (e.g., `python39`, `python310`, `python311`, `python312`).\n")
+        readme_parts.append(f"   - Configure `--timeout` and `--memory` for the GCP function during deployment. GCP has different limits, defaults, and supported values.\n\n")
 
-### 8. Refactor Code Logic (AWS Service Integrations)
-   - **CRITICAL: This is often the most complex manual step.** Any code that directly interacts with AWS services (e.g., S3, DynamoDB, SQS, SNS, other Lambdas, Step Functions using `boto3`) **WILL FAIL** in GCP.
-   - **You MUST refactor this code to use Google Cloud client libraries and target equivalent GCP services.**
-     - Example (S3 -> GCS): `boto3.client('s3').put_object(...)` -> `google.cloud.storage.Client().bucket(...).blob(...).upload_from_string(...)`
-     - Example (SQS -> Pub/Sub): `boto3.client('sqs').send_message(...)` -> `google.cloud.pubsub_v1.PublisherClient().publish(...)`
-     - Example (DynamoDB GetItem -> Firestore Get Document): `boto3.client('dynamodb').get_item(TableName='MyTable', Key={{'id': {{'S': 'some_id'}}}})` -> `google.cloud.firestore.Client().collection('MyTable').document('some_id').get()`
-     - Example (DynamoDB Scan/Query -> Firestore Query): `boto3.client('dynamodb').scan(TableName='MyTable', FilterExpression='age > :val', ExpressionAttributeValues={{':val': {{'N': '20'}}}})` -> `google.cloud.firestore.Client().collection('MyTable').where(field_path='age', op_string='>', value=20).stream()`
+        readme_parts.append(f"### 8. Refactor Code Logic (AWS Service Integrations)\n")
+        readme_parts.append(f"   - **CRITICAL: This is often the most complex manual step.** Any code that directly interacts with AWS services (e.g., S3, DynamoDB, SQS, SNS, other Lambdas, Step Functions using `boto3`) **WILL FAIL** in GCP.\n")
+        readme_parts.append(f"   - **You MUST refactor this code to use Google Cloud client libraries and target equivalent GCP services.**\n")
+        readme_parts.append(f"     - Example (S3 -> GCS): `boto3.client('s3').put_object(...)` -> `google.cloud.storage.Client().bucket(...).blob(...).upload_from_string(...)`\n")
+        readme_parts.append(f"     - Example (SQS -> Pub/Sub): `boto3.client('sqs').send_message(...)` -> `google.cloud.pubsub_v1.PublisherClient().publish(...)`\n")
+        readme_parts.append(f"     - Example (DynamoDB GetItem -> Firestore Get Document): `boto3.client('dynamodb').get_item(TableName='MyTable', Key={{'id': {{'S': 'some_id'}}}})` -> `google.cloud.firestore.Client().collection('MyTable').document('some_id').get()`\n")
+        readme_parts.append(f"     - Example (DynamoDB Scan/Query -> Firestore Query): `boto3.client('dynamodb').scan(TableName='MyTable', FilterExpression='age > :val', ExpressionAttributeValues={{':val': {{'N': '20'}}}})` -> `google.cloud.firestore.Client().collection('MyTable').where(field_path='age', op_string='>', value=20).stream()`\n\n")
 
-### 9. Check File System Access & Temporary Files
-   - AWS Lambda provides `/tmp` (typically 512MB, configurable).
-   - GCP Cloud Functions also provide an in-memory file system at `/tmp` (size varies by generation and memory allocation). Ensure your usage is compatible.
-   - **Relative Paths & Imports:** If your original Lambda package had a complex directory structure and the handler was in a subdirectory, relative imports in the now top-level `main.py` might need adjustment (e.g., changing `from .mymodule import foo` to `from mymodule import foo` if `mymodule` is also now at the top level, or `from subdir.mymodule import foo` if `subdir` was copied as is).
+        readme_parts.append(f"### 9. Check File System Access & Temporary Files\n")
+        readme_parts.append(f"   - AWS Lambda provides `/tmp` (typically 512MB, configurable).\n")
+        readme_parts.append(f"   - GCP Cloud Functions also provide an in-memory file system at `/tmp` (size varies by generation and memory allocation). Ensure your usage is compatible.\n")
+        readme_parts.append(f"   - **Relative Paths & Imports:** If your original Lambda package had a complex directory structure and the handler was in a subdirectory, relative imports in the now top-level `main.py` might need adjustment (e.g., changing `from .mymodule import foo` to `from mymodule import foo` if `mymodule` is also now at the top level, or `from subdir.mymodule import foo` if `subdir` was copied as is).\n\n")
 
-### 10. Adapt Logging and Error Reporting
-   - Standard Python `logging` will generally integrate with Cloud Logging in GCP.
-   - Review any custom logging or error reporting mechanisms (e.g., custom CloudWatch metrics, third-party services) and adapt them for GCP (e.g., Cloud Monitoring custom metrics, Error Reporting).
+        readme_parts.append(f"### 10. Adapt Logging and Error Reporting\n")
+        readme_parts.append(f"   - Standard Python `logging` will generally integrate with Cloud Logging in GCP.\n")
+        readme_parts.append(f"   - Review any custom logging or error reporting mechanisms (e.g., custom CloudWatch metrics, third-party services) and adapt them for GCP (e.g., Cloud Monitoring custom metrics, Error Reporting).\n\n")
 
-### 11. VPC Peering / Private Network Access
-   - If your Lambda was connected to a VPC for accessing private resources, you'll need to configure Serverless VPC Access for your Google Cloud Function to connect to a GCP VPC.
+        readme_parts.append(f"### 11. VPC Peering / Private Network Access\n")
+        readme_parts.append(f"   - If your Lambda was connected to a VPC for accessing private resources, you'll need to configure Serverless VPC Access for your Google Cloud Function to connect to a GCP VPC.\n\n")
 
-### 12. Thorough Testing
-   - **CRITICAL: After making all manual changes, thoroughly test the converted function in the GCP environment with realistic data and trigger scenarios.** Test error paths and edge cases.
+        readme_parts.append(f"### 12. Thorough Testing\n")
+        readme_parts.append(f"   - **CRITICAL: After making all manual changes, thoroughly test the converted function in the GCP environment with realistic data and trigger scenarios.** Test error paths and edge cases.\n\n")
 
-This script provides a starting point. Assume significant manual refactoring will be necessary for a successful migration.
-"""
+        readme_parts.append("This script provides a starting point. Assume significant manual refactoring will be necessary for a successful migration.\n")
+
+        readme_content = "".join(readme_parts)
+        # --- End of README content generation ---
+
         with open(os.path.join(output_path, 'CONVERSION_README.md'), 'w', encoding='utf-8') as f:
             f.write(readme_content)
         logging.info(f"Generated 'CONVERSION_README.md' in '{output_path}' with detailed manual steps and warnings.")
 
         logging.info(f"[✅] Conversion process completed. Output files are in: {output_path}")
-        return True # Indicate success
+        return True
 
     except Exception as e:
         logging.error(f"An unexpected error occurred during the conversion process: {e}", exc_info=True)
-        return False # Indicate failure
+        return False
 
 def main():
-    # Setup command-line argument parsing
     parser = argparse.ArgumentParser(
         description="Convert an AWS Lambda function's structure for Google Cloud Functions.",
-        formatter_class=argparse.RawTextHelpFormatter, # Preserves newlines in epilog for better readability
+        formatter_class=argparse.RawTextHelpFormatter,
         epilog="""
 LIMITATIONS & IMPORTANT NOTES:
 --------------------------------
@@ -441,39 +468,34 @@ Example Usage:
     )
     parser.add_argument(
         "--output",
-        default="gcp_function_output", # Base directory for output
+        default="gcp_function_output",
         help="Output directory for the converted GCP function files. (default: gcp_function_output/<function_name>)"
     )
     parser.add_argument(
         "--region",
-        default=None, # boto3 will use default region from config or environment variables if None
+        default=None,
         help="AWS region of the Lambda function (e.g., us-west-2). If not specified, uses the default from your AWS CLI configuration or environment variables."
     )
     parser.add_argument(
         "--cleanup",
-        action="store_true", # If this flag is present, its value is True
+        action="store_true",
         help="Remove the downloaded .zip file and the temporary extracted Lambda code directory (<function_name>_code) after conversion."
     )
 
     parsed_args = parser.parse_args()
 
-    # If default output path is used, create a subdirectory named after the function for better organization
     output_directory = parsed_args.output
-    if parsed_args.output == "gcp_function_output": # Default value was used
+    if parsed_args.output == "gcp_function_output":
         output_directory = os.path.join("gcp_function_output", parsed_args.function_name)
         logging.info(f"Using default base output. Full output directory will be: {os.path.abspath(output_directory)}")
 
-
-    # Step 1: Download and extract Lambda code and configuration
     lambda_download_info = download_lambda_code(parsed_args.function_name, parsed_args.region)
 
     if lambda_download_info:
-        # Unpack the returned tuple
         extract_path, handler_file_aws, handler_func_aws, runtime_aws, env_vars_aws, layers_aws, timeout_aws, memory_aws = lambda_download_info
 
-        # Step 2: Convert the extracted code to GCP Function structure
         conversion_success = convert_to_gcp_function(
-            aws_function_name_for_readme=parsed_args.function_name, # For the README
+            aws_function_name_for_readme=parsed_args.function_name,
             extract_path=extract_path,
             output_path=output_directory,
             lambda_handler_file_from_aws=handler_file_aws,
@@ -486,17 +508,15 @@ Example Usage:
         )
 
         if conversion_success:
-            # Provide guidance for next steps and a sample deployment command
             logging.info("\n🚀 Next Steps & Deployment Suggestion:")
             logging.info("1. CRITICALLY Review the 'CONVERSION_README.md' in the output directory.")
             logging.info(f"2. Navigate to the output directory: cd \"{os.path.abspath(output_directory)}\"")
-            logging.info("3. Manually adapt 'main.py' (especially AWS SDK calls, event/context handling) and 'requirements.txt'.")
+            logging.info("3. Manually adapt 'main.py' (especially AWS SDK calls, event/context handling, AND RETURN VALUES FOR HTTP FUNCTIONS) and 'requirements.txt'.") # Added emphasis on return values
             logging.info("4. Configure environment variables, IAM service account, and triggers in GCP for your new function.")
 
-            # Suggest a GCP runtime based on the AWS runtime
             gcp_runtime_map = {
-                "python3.7": "python37", # Supported but deprecated in GCP for new functions
-                "python3.8": "python38", # Supported but older
+                "python3.7": "python37",
+                "python3.8": "python38",
                 "python3.9": "python39",
                 "python3.10": "python310",
                 "python3.11": "python311",
@@ -508,31 +528,29 @@ Example Usage:
                     gcp_runtime_suggestion = gcp_rt
                     break
             if not gcp_runtime_suggestion:
-                gcp_runtime_suggestion = "python311" # A recent general default if no match
+                gcp_runtime_suggestion = "python311"
                 logging.warning(f"Could not map AWS runtime '{runtime_aws}' directly. Suggesting GCP runtime '{gcp_runtime_suggestion}'. Please verify compatibility.")
 
-            # Sanitize Lambda function name for GCP (lowercase, hyphens, max 63 chars)
             gcp_function_name = re.sub(r'[^a-z0-9-]', '', parsed_args.function_name.lower().replace('_', '-'))[:63]
-            if not gcp_function_name : gcp_function_name = "my-converted-gcp-function" # Fallback name
+            if not gcp_function_name : gcp_function_name = "my-converted-gcp-function"
 
 
             logging.info("\nExample GCP deployment command (for HTTP trigger, Gen2 Cloud Function):")
             logging.info("   --- Review and adjust ALL parameters below, especially trigger type, region, and entry-point! ---")
             logging.info(f"   gcloud functions deploy {gcp_function_name} \\")
-            logging.info(f"     --gen2 \\") # Or --gen1 if preferred/needed
+            logging.info(f"     --gen2 \\")
             logging.info(f"     --runtime {gcp_runtime_suggestion} \\")
-            logging.info(f"     --region <YOUR_GCP_REGION> \\") # e.g., us-central1
-            logging.info(f"     --source . \\") # Run from within the output directory
-            logging.info(f"     --entry-point main \\") # Ensure this matches your function name in main.py
-            logging.info(f"     --trigger-http \\") # For HTTP. Change for other triggers (e.g., --trigger-bucket <BUCKET_NAME>, --trigger-topic <TOPIC_NAME>)
-            logging.info(f"     --allow-unauthenticated \\") # For public HTTP. For private, use --no-allow-unauthenticated and set IAM invoker permissions.
-            logging.info(f"     --memory {memory_aws}MB \\") # Adjust based on GCP supported values & needs
-            logging.info(f"     --timeout {timeout_aws}s \\")      # Adjust based on GCP limits & needs
-            logging.info(f"     --set-env-vars KEY1=VALUE1,KEY2=VALUE2 \\") # Add your environment variables
-            logging.info(f"     --service-account <YOUR_FUNCTION_SERVICE_ACCOUNT_EMAIL>") # Recommended for specific permissions
+            logging.info(f"     --region <YOUR_GCP_REGION> \\")
+            logging.info(f"     --source . \\")
+            logging.info(f"     --entry-point main \\")
+            logging.info(f"     --trigger-http \\")
+            logging.info(f"     --allow-unauthenticated \\")
+            logging.info(f"     --memory {memory_aws}MB \\")
+            logging.info(f"     --timeout {timeout_aws}s \\")
+            logging.info(f"     --set-env-vars KEY1=VALUE1,KEY2=VALUE2 \\")
+            logging.info(f"     --service-account <YOUR_FUNCTION_SERVICE_ACCOUNT_EMAIL>")
 
-        # Step 3: Cleanup temporary files if requested
-        if parsed_args.cleanup and extract_path: # ensure extract_path was defined (download was successful)
+        if parsed_args.cleanup and extract_path:
             logging.info("Cleaning up temporary downloaded files...")
             zip_file_to_remove = f"{parsed_args.function_name}.zip"
             if os.path.exists(zip_file_to_remove):
