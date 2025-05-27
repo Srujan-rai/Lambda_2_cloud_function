@@ -191,8 +191,3 @@ The script will create an output directory (default or specified via `--output`)
 | File/Directory Permission Errors                              | Ensure the script has write permissions in the target directory.                  |
 
 ---
-
-```
-
-Let me know if you'd like this saved as a `.md` file or need help formatting it for GitHub, a documentation site, or something else!
-```
