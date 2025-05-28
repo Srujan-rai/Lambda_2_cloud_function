@@ -39,7 +39,7 @@ def get_gemini_analysis(file_content_base64, original_file_name_for_prompt="inpu
         raise RuntimeError(f"Error initializing Gemini client for {original_file_name_for_prompt}") from e
 
     model_name = "gemini-1.5-flash-latest"
-    system_instruction_text = """ou are a highly specialized AWS Lambda to Google Cloud Functions Migration Code Analyzer. Your sole purpose is to identify specific lines or blocks of AWS Lambda JavaScript code that must change to function correctly in a Google Cloud Functions environment. You will detail the exact AWS resource/SDK call/configuration and its direct Google Cloud equivalent or migration strategy. Your output of these changes must be in JSON format.
+    system_instruction_text = """You are a highly specialized AWS Lambda to Google Cloud Functions Migration Code Analyzer. Your sole purpose is to identify specific lines or blocks of AWS Lambda JavaScript code that must change to function correctly in a Google Cloud Functions environment. You will detail the exact AWS resource/SDK call/configuration and its direct Google Cloud equivalent or migration strategy. Your output of these changes must be in JSON format.
 
 Core Principles: ABSOLUTE ADHERENCE REQUIRED
 MIGRATION-CRITICAL CHANGES ONLY: Identify and report only code that must change due to incompatibilities between the AWS Lambda environment (including its SDKs and service integration patterns) and the Google Cloud Functions environment (with its SDKs and GCP service integration patterns).
@@ -126,11 +126,13 @@ Before outputting, internally review your generated JSON to ensure every object 
         raise RuntimeError(f"Gemini API request for {original_file_name_for_prompt} failed: Prompt was blocked. Reason: {block_reason_detail}") from e
     except Exception as e:
         print(f"Gemini API Error for {original_file_name_for_prompt}: {type(e).__name__} - {e}")
+        traceback.print_exc() # Added for more detail on generic exceptions
         raise RuntimeError(f"Gemini API request for {original_file_name_for_prompt} failed: {type(e).__name__} - {e}") from e
 
     if not full_response_text.strip():
         error_msg = f"Gemini returned an empty response for file '{original_file_name_for_prompt}'."
         print(f"Warning: {error_msg}")
+        # Consider if this should be a more specific custom exception or if RuntimeError is okay
         raise RuntimeError(error_msg)
     return full_response_text
 
@@ -145,52 +147,61 @@ def process_single_file(file_processing_args):
         file_content_base64 = base64.b64encode(file_bytes).decode('utf-8')
     except Exception as e:
         print(f"  Error reading/encoding {relative_file_path}: {e}")
-        return [] 
+        return []
     try:
         json_response_text = get_gemini_analysis(file_content_base64, relative_file_path)
         if json_response_text:
             try:
                 parsed_data = json.loads(json_response_text)
                 changes_list_from_json = []
-                summary_text_from_json = None 
+                summary_text_from_json = None
                 if isinstance(parsed_data, list):
                     changes_list_from_json = parsed_data
                 elif isinstance(parsed_data, dict):
-                    changes_list_from_json = parsed_data.get("codeChanges", []) 
+                    # Handle potential nested structure if model wraps list in a dict
+                    changes_list_from_json = parsed_data.get("codeChanges", []) # Default to empty list if key not found
                     summary_text_from_json = parsed_data.get("summary") or \
                                              parsed_data.get("initialCodeAssessment") or \
-                                             parsed_data.get("assessment") 
+                                             parsed_data.get("assessment") # Check multiple keys for summary
                     if summary_text_from_json:
                         print(f"  Model Assessment/Summary for {relative_file_path}: {summary_text_from_json}")
                 else:
+                    # If JSON is valid but not a list or expected dict, log and return empty
                     print(f"  Warning: Parsed JSON for {relative_file_path} is an unexpected JSON type: {type(parsed_data)}")
-                    return []
+                    return [] # No processable changes
+
+                # Ensure changes_list_from_json is indeed a list before iterating
                 if isinstance(changes_list_from_json, list):
                     processed_changes = []
                     for change_item in changes_list_from_json:
                         if not isinstance(change_item, dict):
                             print(f"  Warning: Item in 'codeChanges' list for {relative_file_path} is not a dictionary: {change_item}")
-                            continue
-                        if 'fileName' not in change_item or not change_item['fileName'] or change_item['fileName'] == "input.js":
-                            change_item['fileName'] = relative_file_path
+                            continue # Skip malformed item
+
+                        # MODIFICATION HERE: Always set/override the fileName with the calculated relative_file_path
+                        change_item['fileName'] = relative_file_path
+
                         processed_changes.append(change_item)
-                    if summary_text_from_json and not processed_changes:
+
+                    if summary_text_from_json and not processed_changes: # Log if summary existed but no changes extracted
                         print(f"  Note for {relative_file_path}: Model provided an assessment resulting in no specific code change items.")
                     print(f"  OK: Parsed {len(processed_changes)} specific code change items for {relative_file_path}.")
                     return processed_changes
                 else:
+                    # This case might occur if parsed_data was a dict but "codeChanges" was not a list
                     print(f"  Warning: The 'codeChanges' part extracted for {relative_file_path} is not a list. Actual type: {type(changes_list_from_json)}")
-                    return []
+                    return [] # No processable changes
             except json.JSONDecodeError as e:
                 print(f"  Error decoding JSON response for {relative_file_path}: {e}")
                 print(f"  Raw response snippet (first 200 chars): {json_response_text[:200]}...")
-                return []
-        else: 
+                return [] # Error in JSON structure
+        else: # json_response_text is None or empty
             print(f"  No JSON response text received for {relative_file_path}.")
-            return []
-    except Exception as e: 
+            return [] # No response to process
+    except Exception as e: # Catch exceptions from get_gemini_analysis or other unexpected issues
         print(f"  Failed processing {relative_file_path} during Gemini call or response handling: {e}")
-        return []
+        traceback.print_exc() # Print full traceback for easier debugging
+        return [] # Indicate failure for this file
 
 # Modified: Removed temp_storage_for_excel argument
 def run_analysis_pipeline(extracted_js_root_path: str) -> str | None:
@@ -207,13 +218,13 @@ def run_analysis_pipeline(extracted_js_root_path: str) -> str | None:
         return None
 
     print(f"Found {len(js_file_args_list)} JavaScript files to process from uploaded ZIP.")
-    num_workers = min(8, (os.cpu_count() or 1) + 4) 
+    num_workers = min(8, (os.cpu_count() or 1) + 4)
     print(f"Using up to {num_workers} parallel workers for Gemini analysis.")
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
         results = executor.map(process_single_file, js_file_args_list)
         for file_result_list in results:
-            if file_result_list: 
+            if file_result_list: # file_result_list is expected to be a list of change dicts
                 all_code_changes.extend(file_result_list)
 
     if not all_code_changes:
@@ -222,13 +233,14 @@ def run_analysis_pipeline(extracted_js_root_path: str) -> str | None:
 
     print(f"\nCollating all {len(all_code_changes)} identified code changes for the report.")
     df = pd.DataFrame(all_code_changes)
+    # Ensure all expected columns are present, even if empty for some rows
     expected_columns = ["fileName", "lineNumber", "currentCode", "changeTo", "reason"]
     for col in expected_columns:
         if col not in df.columns:
-            df[col] = pd.NA
-    df = df[expected_columns]
+            df[col] = pd.NA # Use pandas NA for missing values
+    df = df[expected_columns] # Reorder/select columns
 
-    excel_file_path = "" 
+    excel_file_path = "" # Initialize to ensure it's defined in case of early exit from try
     try:
         # Modified: dir=None uses the system's default temporary directory
         with tempfile.NamedTemporaryFile(delete=False, mode='w+b', suffix=".xlsx", dir=None) as tmp_excel_file_obj:
@@ -239,33 +251,33 @@ def run_analysis_pipeline(extracted_js_root_path: str) -> str | None:
         return excel_file_path
     except Exception as e:
         print(f"Error generating Excel report with pandas: {e}")
-        traceback.print_exc() 
-        if os.path.exists(excel_file_path): 
+        traceback.print_exc() # Print full traceback
+        if os.path.exists(excel_file_path): # Check if file was partially created
              try:
                 os.remove(excel_file_path)
                 print(f"Cleaned up partially created/failed Excel file: {excel_file_path}")
              except Exception as e_remove:
                 print(f"Error cleaning up partially created/failed Excel file {excel_file_path}: {e_remove}")
-        raise 
+        raise # Re-raise the exception so FastAPI can catch it as a 500 error
 
 app = FastAPI(title="Gemini JS Code Analyzer API")
 
 # --- CORS Middleware Configuration ---
-origins = ["*"]
+origins = ["*"] # Allow all origins for simplicity; restrict in production
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=False,
+    allow_credentials=False, # Typically False if allow_origins is "*" without specific URLs
     allow_methods=["GET", "POST", "OPTIONS"], # Allow OPTIONS for preflight requests
-    allow_headers=["*"], # Allow all headers, or be more specific
+    allow_headers=["*"], # Allow all headers, or specify (e.g., ["Content-Type", "Authorization"])
 )
 # --- End CORS Middleware Configuration ---
 
 
 @app.post("/analyze-js-zip/")
 async def analyze_javascript_zip_endpoint(file: UploadFile = File(..., description="A ZIP file containing JavaScript (.js) files for analysis.")):
-    if not os.getenv("GEMINI_API_KEY"): 
+    if not os.getenv("GEMINI_API_KEY"): # Check API key at endpoint level too
         raise HTTPException(status_code=503, detail="Service unavailable: GEMINI_API_KEY not configured on the server.")
 
     if not file.filename or not file.filename.endswith(".zip"):
@@ -273,74 +285,89 @@ async def analyze_javascript_zip_endpoint(file: UploadFile = File(..., descripti
 
     # This TemporaryDirectory is for the uploaded ZIP and its extracted contents
     with tempfile.TemporaryDirectory() as temp_zip_extraction_dir:
-        safe_filename = os.path.basename(file.filename)
+        safe_filename = os.path.basename(file.filename) # Sanitize filename
         uploaded_zip_path = os.path.join(temp_zip_extraction_dir, safe_filename)
         extracted_files_dir = os.path.join(temp_zip_extraction_dir, "extracted_content")
         os.makedirs(extracted_files_dir, exist_ok=True)
 
-        excel_report_path = None 
+        excel_report_path = None # Initialize
         try:
             print(f"Saving uploaded file: {safe_filename} to {uploaded_zip_path}")
             with open(uploaded_zip_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
+                shutil.copyfileobj(file.file, buffer) # Efficiently copy file object
             
             print(f"Extracting ZIP file to: {extracted_files_dir}")
             try:
                 with zipfile.ZipFile(uploaded_zip_path, 'r') as zip_ref:
                     for member in zip_ref.infolist():
                         member_filename = member.filename
+                        # Security: Prevent path traversal and absolute paths
                         if member_filename.startswith('/') or ".." in member_filename:
                             raise HTTPException(status_code=400, detail=f"Invalid path in ZIP: '{member_filename}' attempts traversal or is absolute.")
+                        
                         target_path = os.path.join(extracted_files_dir, member_filename)
+                        
+                        # Security: Ensure resolved path is within the extraction directory
                         if not os.path.abspath(target_path).startswith(os.path.abspath(extracted_files_dir)):
                             raise HTTPException(status_code=400, detail=f"Invalid path in ZIP: '{member_filename}' resolved outside target directory.")
+
                         if member.is_dir():
                              os.makedirs(target_path, exist_ok=True)
-                        else: 
+                        else: # It's a file
+                            # Ensure parent directory exists
                             os.makedirs(os.path.dirname(target_path), exist_ok=True)
                             with open(target_path, "wb") as outfile:
                                 outfile.write(zip_ref.read(member.filename))
             except zipfile.BadZipFile:
                 raise HTTPException(status_code=400, detail="Invalid or corrupted ZIP file.")
-            except HTTPException: 
+            except HTTPException: # Re-raise specific HTTP exceptions
                 raise
-            except Exception as e_zip: 
+            except Exception as e_zip: # Catch other zip-related errors
                 print(f"ZIP extraction error: {e_zip}")
                 traceback.print_exc()
                 raise HTTPException(status_code=400, detail=f"Error extracting ZIP file: {str(e_zip)}")
 
             print("Starting analysis pipeline...")
             # Modified: Call run_analysis_pipeline without temp_storage_for_excel
+            # Use run_in_threadpool for synchronous/blocking code
             excel_report_path = await run_in_threadpool(
-                run_analysis_pipeline, 
+                run_analysis_pipeline, # The synchronous function
                 extracted_js_root_path=extracted_files_dir
             )
 
             if excel_report_path is None or not os.path.exists(excel_report_path):
+                # This could happen if run_analysis_pipeline returned None (e.g., no JS files, or no changes)
+                # or if there was an issue creating the file that wasn't caught by run_analysis_pipeline's try-except
                 print(f"Error: Excel report path is None or file does not exist after pipeline. Path: {excel_report_path}")
-                raise HTTPException(status_code=500, detail="Internal error: Failed to generate or locate the analysis report file.")
+                # Provide a more user-friendly message if no changes were found specifically
+                if excel_report_path is None and not js_file_args_list: # js_file_args_list would be out of scope here, need to check based on pipeline output
+                     raise HTTPException(status_code=404, detail="No JavaScript files found in the uploaded ZIP or no migration changes identified.")
+                else:
+                     raise HTTPException(status_code=500, detail="Internal error: Failed to generate or locate the analysis report file.")
 
             output_filename = f"gemini_analysis_{os.path.splitext(safe_filename)[0]}.xlsx"
             print(f"Sending Excel report: {excel_report_path} as {output_filename}")
             
+            # Background task for cleaning up the temporary Excel file after response is sent
             cleanup_task = BackgroundTask(os.remove, excel_report_path)
             
             return FileResponse(
                 path=excel_report_path,
                 media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 filename=output_filename,
-                background=cleanup_task 
+                background=cleanup_task # Pass the cleanup task here
             )
 
-        except HTTPException: 
+        except HTTPException: # Re-raise HTTPExceptions to let FastAPI handle them
             raise
         except Exception as e:
+            # Catch-all for other unexpected errors during the process
             print(f"An unexpected error occurred during /analyze-js-zip request for {safe_filename}:")
-            traceback.print_exc()
+            traceback.print_exc() # Log the full traceback for server-side debugging
             raise HTTPException(status_code=500, detail=f"An internal server error occurred: {str(e)}")
         # `temp_zip_extraction_dir` and its contents (uploaded_zip_path, extracted_files_dir)
-        # are automatically cleaned up.
-        # The excel_report_path (created in default temp dir) is cleaned by BackgroundTask.
+        # are automatically cleaned up when the `with tempfile.TemporaryDirectory()` block exits.
+        # The excel_report_path (if created in default temp dir) is cleaned by BackgroundTask.
 
 @app.get("/", summary="API Root", description="Welcome to the Gemini JS Code Analyzer API.")
 async def root():
