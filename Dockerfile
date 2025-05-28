@@ -45,4 +45,5 @@ EXPOSE 8080
 # Uvicorn will listen on 0.0.0.0 to be accessible from outside the container
 # The port is taken from the PORT environment variable, which Cloud Run sets.
 # Ensure "main_api:app" matches your Python filename and FastAPI app instance name.
-CMD ["uvicorn", "main_api:app", "--host", "0.0.0.0", "--port", "$PORT"]
+# Using the shell form of CMD to allow shell variable substitution for $PORT
+CMD uvicorn main_api:app --host 0.0.0.0 --port $PORT
