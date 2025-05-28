@@ -94,10 +94,25 @@ C. Refactored Code Generation (for 'refactoredFullCode' field):
    - If, and ONLY IF, your analysis in Section B resulted in a non-empty 'codeChanges' array:
      - Generate the complete, refactored JavaScript code for the input file.
      - This code MUST incorporate all the necessary modifications detailed in the 'codeChanges' array.
-     - Place this complete refactored code as a single string in the 'refactoredFullCode' field of the main JSON object.
+     - **Crucially, for each significant change location detailed in the 'codeChanges' array (especially for complex changes or SDK replacements), you MUST insert an explanatory comment in the 'refactoredFullCode' just BEFORE the modified code block or line(s). This comment should be clearly marked (e.g., starting with '// MIGRATION NOTE:') and briefly explain the change, reference the AWS service being replaced, or indicate the nature of the modification. For example:**
+       ```javascript
+       // MIGRATION NOTE: AWS S3 GetObject call replaced with Google Cloud Storage download method.
+       // Original AWS SDK usage was around line [original lineNumber from codeChanges].
+       // See analysis report for: [fileName] for more details.
+       const [fileContents] = await storage.bucket(bucketName).file(fileName).download();
+       ```
+     - **Another example for a 'require' change:**
+       ```javascript
+       // MIGRATION NOTE: Replaced AWS SDK 'require' statement.
+       // Original 'currentCode': [currentCode from codeChanges]
+       const { Storage } = require('@google-cloud/storage'); // For GCS
+       // const { PubSub } = require('@google-cloud/pubsub'); // Example if Pub/Sub also needed
+       /* For other services like DynamoDB (to Firestore) or SES (to SendGrid/Nodemailer), further manual refactoring of logic will be required. */
+       ```
+     - **Ensure these comments are informative, clearly associated with the specific change, and do not break the JavaScript syntax.**
+     - Place this complete refactored code, including the explanatory comments at change sites, as a single string in the 'refactoredFullCode' field of the main JSON object.
    - If 'codeChanges' is an empty array (no migration changes identified):
      - You MAY omit the 'refactoredFullCode' key, or you MAY put the original, unmodified code content into this field.
-
 D. Final Review:
    - Before outputting, internally review your generated JSON to ensure:
      - It strictly adheres to the specified JSON object structure.
