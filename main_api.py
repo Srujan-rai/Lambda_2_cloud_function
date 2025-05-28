@@ -453,13 +453,3 @@ async def analyze_javascript_zip_endpoint(file: UploadFile = File(..., descripti
 async def root():
     return {"message": "Gemini JS Code Analyzer API. Use the /docs endpoint to see API details and test the /analyze-js-zip POST endpoint."}
 
-# To run this application (save as main.py or similar):
-# 1. Ensure you have a .env file with your GEMINI_API_KEY or set it as an environment variable.
-#    Example .env file:
-#    GEMINI_API_KEY="YOUR_ACTUAL_API_KEY_HERE"
-#
-# 2. Install dependencies:
-#    pip install "fastapi[all]" uvicorn python-multipart pandas openpyxl google-generativeai python-dotenv
-#
-# 3. Run with Uvicorn:
-#    uvicorn main:app --reload
