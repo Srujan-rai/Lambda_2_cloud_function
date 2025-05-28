@@ -408,7 +408,7 @@ async def analyze_javascript_zip_endpoint(file: UploadFile = File(..., descripti
             
             base_name_no_ext = os.path.splitext(safe_filename)[0]
             analysis_excel_in_zip_name = f"analysis_{base_name_no_ext}.xlsx"
-            work_items_excel_in_zip_name = f"work_item_import_{base_name_no_ext}.xlsx"
+            work_items_excel_in_zip_name = f"azureDevops_{base_name_no_ext}.xlsx"
             
             with zipfile.ZipFile(output_zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
                 zf.write(analysis_report_path, arcname=analysis_excel_in_zip_name)
