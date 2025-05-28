@@ -1,0 +1,35 @@
+{
+  "contact": {
+    "fromName": "",
+    "fromEmail": "",
+    "toEmail": ""
+  },
+  "data": {
+    "subject": "AWS SES Test",
+    "headerImgSrc": "https://promo.coca-cola.com.sg/assets/email/images/email-header-pr.jpg",
+    "introductoryText": "Hello,<br><br>Thank you for participating in our promotion!<br><br>Congratulations, you have won",
+    "prizeName": "The Prize",
+    "prizeImgSrc": "http://www.differencebetween.info/sites/default/files/images/2/award.jpg",
+    "codeText": "PRIZECODE123",
+    "barcodeImgSrc": "https://www.barcodelookup.com/assets/images/barcode-scan.jpg",
+    "additionalText": "This is the promo additional text!",
+    "signatureText": "Good luck!<br>Coca-Cola Team",
+    "plainText": "NOT USED FOR NOW BUT SUPPORTED BY TEMPLATE"
+  },
+  "social": [
+    {
+      "imgSrc": "https://s3.eu-west-2.amazonaws.com/gpp-public-bucket-milen/facebook48x48.png",
+      "btnLink": "#"
+    },
+    {
+      "imgSrc": "https://s3.eu-west-2.amazonaws.com/gpp-public-bucket-milen/instagram48x48.png",
+      "btnLink": "#"
+    }
+  ],
+  "footer": {
+    "copyrightText": "©2019 THE COCA-COLA COMPANY. ALL RIGHTS RESERVED.",
+    "ppLink": "https://app.coca-cola.com/privacy/CH/",
+    "tcLink": "https://app.coca-cola.com/tos/CH/",
+    "unsubscribeLink": "NOT USED FOR NOW BUT SUPPORTED BY TEMPLATE"
+  }
+}

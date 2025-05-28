@@ -1,0 +1,85 @@
+{
+    "gpp_user_id": "rudy22@gmail.com|email",
+    "request_id": "e13d3099-a175-11e9-a81d-63aac191521e1",
+    "configuration_id": "CCA-configuration-1",
+    "country": "AL",
+    "entry_date": "2019-07-08",
+    "inserted_transactions": [
+    {
+        "gpp_user_id": "ngps.cc.poor.user@gmail.com|email",
+        "amount": 0,
+        "configuration_id": "CCA-configuration-1",
+        "currency_id": "coin",
+        "currency_name": "CCA-coin",
+        "prize_id": "prize_no_cost",
+        "promo_name": "My promotion",
+        "transaction_timestamp": 1562586327667,
+        "transaction_type": 2,
+        "wallet_rolling_total": 0
+    },
+    {
+        "gpp_user_id": "ngps.cc.poor.user@gmail.com|email",
+        "amount": 0,
+        "configuration_id": "CCA-configuration-1",
+        "currency_id": "gem",
+        "currency_name": "CCA-gem",
+        "prize_id": "prize_no_cost",
+        "promo_name": "My promotion",
+        "transaction_timestamp": 1562586327671,
+        "transaction_type": 2,
+        "wallet_rolling_total": 0
+    }],
+    "instant_win_winner": false,
+    "mail_sent": true,
+    "participation_id": "testingRudy22",
+    "participation_time": "1569833990000",
+    "successful_burns": {
+        "lot_id": "9722074",
+        "lot_name": "PE3",
+        "MCtransactionId": "NDg2Mjg0OmFlODY1ZDg0LTZlZTktNDZhZC05ZjI2LWVlYWZmMTJkNjBmYg==-15609298226303VE1KUDV",
+        "pincode": "3VE1KUDV",
+        "program_id": "486284"
+    },
+    "redeemed_prize": {
+        "end_date": 1746046740000,
+        "short_description": {
+            "ps-AR": ""
+        },
+        "voucher_dist": true,
+        "total_claimed": 1,
+        "final_state": "redeemed",
+        "voucher_code": "7ayhydbf",
+        "total_available": 12,
+        "entry_date": "2025-03-28",
+        "redemption_limit": null,
+        "tier": 0,
+        "delivery_type": 1,
+        "prize_activity_timezone": "Europe/Kiev",
+        "configuration_id": "m8sjs397m8sjs3",
+        "redemption_link": "",
+        "start_date": 1743152400000,
+        "pool_prize": true,
+        "expiry_date": 1753259033000,
+        "active": true,
+        "barcode_type": 0,
+        "redeem_description": {
+            "ps-AR": ""
+        },
+        "priority": 0,
+        "tags": [],
+        "prize_id": "m8sjs5f3",
+        "img_url": [],
+        "total_amount": 13,
+        "redeem_desc": {
+            "ps-AR": ""
+        },
+        "name": "rvdrvd",
+        "short_desc": {
+            "ps-AR": ""
+        },
+        "desc": {
+            "ps-AR": ""
+        },
+        "status": "claimed"
+    }
+}

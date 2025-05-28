@@ -1,0 +1,9 @@
+Dear {{contact.toName}},
+
+{{data.textVersion}}
+
+You can preview the HTML version of this email here:
+{{data.displayInBrowserLink}}
+
+Good luck!!
+Coca-Cola Team

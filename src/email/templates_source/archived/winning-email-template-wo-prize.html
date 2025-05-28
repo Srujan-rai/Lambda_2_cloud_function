@@ -1,0 +1,295 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>Coca-Cola</title>
+  <style>
+    img {
+      border: none;
+      -ms-interpolation-mode: bicubic;
+      max-width: 100%;
+    }
+
+    body {
+      background-color: #f6f6f6;
+      font-family: sans-serif;
+      -webkit-font-smoothing: antialiased;
+      font-size: 14px;
+      line-height: 1.4;
+      margin: 0;
+      padding: 0;
+      -ms-text-size-adjust: 100%;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    table {
+      border-collapse: separate;
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+      width: 100%; }
+    table td {
+      font-family: sans-serif;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    .body {
+      background-color: #f6f6f6;
+      width: 100%;
+    }
+
+    .container {
+      display: block;
+      margin: 0 auto !important;
+      /* makes it centered */
+      max-width: 580px;
+      padding: 10px;
+      width: 580px;
+    }
+
+    .content {
+      box-sizing: border-box;
+      display: block;
+      margin: 0 auto;
+      max-width: 580px;
+      padding: 10px;
+    }
+
+    .main {
+      background: #ffffff;
+      border-radius: 3px;
+      width: 100%;
+    }
+
+    .wrapper {
+      box-sizing: border-box;
+      padding: 20px;
+    }
+
+    .content-block {
+      padding-bottom: 10px;
+      padding-top: 10px;
+    }
+
+    .footer {
+      clear: both;
+      margin-top: 10px;
+      text-align: center;
+      width: 100%;
+    }
+    .footer td,
+    .footer p,
+    .footer span,
+    .footer a {
+      color: #999999;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      color: #000000;
+      font-family: sans-serif;
+      font-weight: 400;
+      line-height: 1.4;
+      margin: 0;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 35px;
+      font-weight: 300;
+      text-align: center;
+      text-transform: capitalize;
+    }
+
+    p,
+    ul,
+    ol {
+      font-family: sans-serif;
+      font-size: 14px;
+      font-weight: normal;
+      margin: 0;
+      margin-bottom: 15px;
+    }
+    p li,
+    ul li,
+    ol li {
+      list-style-position: inside;
+      margin-left: 5px;
+    }
+
+    a {
+      color: #3498db;
+      text-decoration: underline;
+    }
+
+    @media only screen and (max-width: 620px) {
+      table[class=body] h1 {
+        font-size: 28px !important;
+        margin-bottom: 10px !important;
+      }
+      table[class=body] p,
+      table[class=body] ul,
+      table[class=body] ol,
+      table[class=body] td,
+      table[class=body] span,
+      table[class=body] a {
+        font-size: 16px !important;
+      }
+      table[class=body] .wrapper,
+      table[class=body] .article {
+        padding: 10px !important;
+      }
+      table[class=body] .content {
+        padding: 0 !important;
+      }
+      table[class=body] .container {
+        padding: 0 !important;
+        width: 100% !important;
+      }
+      table[class=body] .main {
+        border-left-width: 0 !important;
+        border-radius: 0 !important;
+        border-right-width: 0 !important;
+      }
+
+      table[class=body] .img-responsive {
+        height: auto !important;
+        max-width: 100% !important;
+        width: auto !important;
+      }
+    }
+
+    @media all {
+      .ExternalClass {
+        width: 100%;
+      }
+      .ExternalClass,
+      .ExternalClass p,
+      .ExternalClass span,
+      .ExternalClass font,
+      .ExternalClass td,
+      .ExternalClass div {
+        line-height: 100%;
+      }
+      .coca-link a {
+        color: inherit !important;
+        font-family: inherit !important;
+        font-size: inherit !important;
+        font-weight: inherit !important;
+        line-height: inherit !important;
+        text-decoration: none !important;
+      }
+    }
+
+  </style>
+</head>
+<body class="">
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
+  <tr>
+    <td>&nbsp;</td>
+    <td class="container">
+      <div class="content">
+        <table role="presentation" class="main">
+          {{#if data.headerImgSrc}}
+          <tr>
+            <td><img alt="Promo Header" width="100%;" src="{{data.headerImgSrc}}"></td>
+          </tr>
+          {{/if}}
+          {{#if data.displayInBrowserLink}}
+          <tr align="center">
+            <td><a href="{{data.displayInBrowserLink}}" style="color: black; font-size: 12px">Display in browser</a></td>
+          </tr>
+          {{/if}}
+          {{#if data.title}}
+          <tr>
+            <td align="left" style="font-family:Helvetica, Arial, sans-serif;font-size:24px;font-weight:bold;color:#DF4726;padding: 24px 24px 12px;">
+              {{data.title}}
+            </td>
+          </tr>
+          {{/if}}
+
+          <tr>
+            <td class="wrapper">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                {{#if data.introductoryText}}
+                <tr>
+                  <td align="left" style="padding:16px 0;">
+                    {{data.introductoryText}}
+                  </td>
+                </tr>
+                {{/if}}
+
+                {{#if data.additionalText}}
+                <tr>
+                  <td align="left">
+                    {{data.additionalText}}
+                  </td>
+                </tr>
+                {{/if}}
+
+                {{#if data.signatureText}}
+                <tr>
+                  <td align="left" style="padding-top: 24px">
+                      {{data.signatureText}}
+                  </td>
+                </tr>
+                {{/if}}
+              </table>
+            </td>
+          </tr>
+        </table>
+
+        <div class="footer">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+            {{#if social}}
+            <tr>
+              <td style="padding:20px 0 10px" align="center">
+                <table cellspacing="0" cellpadding="0" border="0">
+                  <tbody>
+                  <tr>
+                    <td align="center">
+                    {{#each social}}
+                      <a href="{{btnLink}}" target="_blank" style="padding: 5px;">
+                        <img src="{{imgSrc}}" class="CToWUd" width="32" height="32" border="0">
+                      </a>
+                    {{/each}}
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+            {{/if}}
+
+            <tr>
+              <td class="content-block coca-link">
+                {{#if footer.copyrightText}}
+                <span class="">{{footer.copyrightText}}</span>
+                {{/if}}
+                <p>
+                  {{#if footer.ppLink}}
+                  <a href="{{footer.ppLink}}" style="padding: 0 5px">Privacy policy</a>
+                  {{/if}}
+                  {{#if footer.tcLink}}
+                  <a href="{{footer.tcLink}}" style="padding: 0 5px">Terms and Conditions</a>
+                  {{/if}}
+                </p>
+                {{#if footer.unsubscribeLink}}
+                <p> Don't like these emails? <a href="{{footer.unsubscribeLink}}">Unsubscribe</a></p>.
+                {{/if}}
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+</body>
+</html>

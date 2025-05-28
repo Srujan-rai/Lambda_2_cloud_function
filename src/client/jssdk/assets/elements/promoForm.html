@@ -1,0 +1,60 @@
+<form id="promotionForm" class="promotion-form" novalidate="novalidate">
+
+    <div class="form-title-row pt-4">
+        <h1 class="text-center text-uppercase">Retrieve JS SDK Form</h1>
+        <hr>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-lg-6">
+            <div class="form-group mb-2 mt-2">
+                <label>
+                    Environment
+                </label>
+                <select name="targetEnv" id="targetEnv" class="form-control" name="targetEnv" onchange="onTargetEnvChange(this)">
+                    <option value="https://ngps-public-bucket-dev.s3-eu-west-1.amazonaws.com/sdk/KoPromo.js">Dev</option>
+                    <option value="https://ngps-public-bucket-alpha.s3-eu-west-1.amazonaws.com/sdk/KoPromo.js">Alpha</option>
+                    <option value="https://ngps-public-bucket-beta.s3-eu-west-1.amazonaws.com/sdk/KoPromo.js">Beta</option>
+                    <option value="https://ngps-public-bucket-gamma.s3-eu-west-1.amazonaws.com/sdk/KoPromo.js">Gamma</option>
+                </select>
+            </div>
+            <div class="form-group mb-2 mt-2">
+                <label>
+                    ConfigurationId
+                </label>
+                <input type="text" class="form-control" name="configurationId" id="configurationId" placeholder="ConfigurationId" maxlength="30">
+            </div>
+            <div class="form-group mb-2 mt-2">
+                <label>PromoFormConfigId
+                    <b>*</b>
+                </label>
+                <input type="text" class="form-control" name="promotionId" id="promotionId" placeholder="PromoFormConfigId" maxlength="100"
+                    required>
+            </div>
+            <div class="form-group mb-2 mt-2">
+                <label>UserId
+                    <b>*</b>
+                </label>
+                <input type="text" class="form-control" name="userId" id="userId" placeholder="UserId" maxlength="100"
+                    required>
+            </div>
+            <div class="form-group mb-2 mt-2">
+                <label>JWT
+                    <b>*</b>
+                </label>
+                <input type="text" class="form-control" name="jwt" id="jwt" placeholder="JWT">
+            </div>
+        </div>
+        <div class="form-group w-100 text-center mt-3">
+            <p class="erroResponse text-danger"></p>
+            <button id="submitFormBtn" type="submit" class="btn enterBtn mt-0" data-loading-text="Enter <i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i>">Enter</button>
+            <p class="text-danger formErrorFeedback" style="display:none;"></p>
+        </div>
+    </div>
+    <!-- end of row -->
+</form>
+
+<script src="assets/js/jquery.validate.min.js"></script>
+<script src="assets/js/formSubmission.js"></script>
+<script src='https://www.google.com/recaptcha/api.js'></script>
+<script src="assets/js/imageOptimisation.js"></script>
+<script src="assets/js/formValidation.js"></script>

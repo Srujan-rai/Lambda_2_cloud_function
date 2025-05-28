@@ -1,0 +1,538 @@
+{
+  "tables": [
+    {
+      "name": "gdpr_requests_table",
+      "partitionKey": "gpp_user_id",
+      "sortKey": "timestamp",
+      "attributes": {
+        "gpp_user_id": "S",
+        "jira_number": "S",
+        "request_type": "S",
+        "requester_user_id": "S",
+        "timestamp": "N"
+      },
+      "hasPIIData": true
+    },
+    {
+      "name": "gpp_blocked_users_table",
+      "partitionKey": "gpp_user_id",
+      "sortKey": "configuration_id",
+      "attributes": {
+        "configuration_id": "S",
+        "entered_by_id": "S",
+        "entry_date": "S",
+        "gpp_user_id": "S",
+        "reason": "S",
+        "requested_by_id": "S",
+        "title": "S"
+      },
+      "hasPIIData": true,
+      "indexes": [
+        {
+          "name": "blockedUsersByConfigurationIndex",
+          "type": "GSI",
+          "partitionKey": "configuration_id"
+        }
+      ]
+    },
+    {
+      "name": "gpp_currency_allocation_rules_table",
+      "partitionKey": "configuration_id",
+      "sortKey": "rule_id",
+      "attributes": {
+        "amount": "N",
+        "configuration_id": "S",
+        "currency_id": "S",
+        "lot_id": "S",
+        "program_id": "S",
+        "rule_id": "S",
+        "jira_ticket_id": "S",
+        "user_koid": "S",
+        "rule_active": "BOOL",
+        "deletion_timestamp": "N",
+        "validity": "N"
+      },
+      "hasPIIData": false
+    },
+    {
+      "name": "gpp_currency_table",
+      "partitionKey": "currency_id",
+      "attributes": {
+        "country": "S",
+        "currency_family": "S",
+        "currency_id": "S",
+        "entry_date": "S",
+        "expiry_date": "N",
+        "name": "S",
+        "origin": "S",
+        "type": "S",
+        "icon_url": "S"
+      },
+      "indexes": [
+        {
+          "name": "currencyFamilyIndex",
+          "type": "GSI",
+          "partitionKey": "currency_family"
+        },
+        {
+          "name": "nameIndex",
+          "type": "GSI",
+          "partitionKey": "name"
+        },
+        {
+          "name": "countryIndex",
+          "type": "GSI",
+          "partitionKey": "country"
+        },
+        {
+          "name": "entry_date",
+          "type": "GSI",
+          "partitionKey": "entry_date"
+        }
+      ],
+      "hasPIIData": false
+    },
+    {
+      "name": "gpp_digital_codes_table",
+      "partitionKey": "prize_id",
+      "sortKey": "voucher",
+      "attributes": {
+        "claim_timestamp": "N",
+        "redeem_timestamp": "N",
+        "configuration_id": "S",
+        "entry_date": "S",
+        "experience": "S",
+        "expiry_date": "N",
+        "gpp_user_id": "S",
+        "prize_id": "S",
+        "voucher": "S",
+        "voucher_status": "S",
+        "outlet_id": "S",
+        "outlet_name": "S",
+        "redemption_app_user": "S",
+        "final_state": "S",
+        "should_expire": "S"
+      },
+      "indexes": [
+        {
+          "name": "gppUserIdIndex",
+          "type": "GSI",
+          "partitionKey": "gpp_user_id"
+        },
+        {
+          "name": "voucher",
+          "type": "GSI",
+          "partitionKey": "voucher"
+        },
+        {
+          "name": "digitalCodesByConfigurationIndex",
+          "type": "GSI",
+          "partitionKey": "configuration_id"
+        },
+        {
+          "name": "localDigCodeExperienceIndex",
+          "type": "LSI",
+          "partitionKey": "prize_id",
+          "sortKey": "experience"
+        },
+        {
+          "name": "localDigCodeStatusIndex",
+          "type": "LSI",
+          "partitionKey": "prize_id",
+          "sortKey": "voucher_status"
+        },
+        {
+          "name": "localDigCodeConfIdIndex",
+          "type": "LSI",
+          "partitionKey": "prize_id",
+          "sortKey": "configuration_id"
+        },
+        {
+          "name": "expirableCodesIndex",
+          "type": "GSI",
+          "partitionKey": "should_expire",
+          "sortKey": "expiry_date"
+        }
+      ],
+      "hasPIIData": true
+    },
+    {
+      "name": "gpp_email_templates_table",
+      "partitionKey": "template_id",
+      "attributes": {
+        "additional_text": "S",
+        "copyright_text": "S",
+        "country": "S",
+        "header_image_path": "S",
+        "introductory_text": "S",
+        "privacy_policy": "S",
+        "sender_email": "S",
+        "sender_name": "S",
+        "ses_config_sets": "S",
+        "ses_email_template": "S",
+        "signature_text": "S",
+        "social_icons_and_links": "L",
+        "subject_text": "S",
+        "template_id": "S",
+        "template_name": "S",
+        "terms_of_service": "S",
+        "localization_labels": "M",
+        "exclusions": "L"
+      },
+      "hasPIIData": false
+    },
+    {
+      "name": "gpp_participations_table",
+      "partitionKey": "gpp_user_id",
+      "sortKey": "request_id",
+      "attributes": {
+        "configuration_id": "S",
+        "entry_date": "S",
+        "gpp_user_id": "S",
+        "inserted_transactions": "L",
+        "instant_win_winner": "BOOL",
+        "mail_sent": "BOOL",
+        "optional_information": "M",
+        "participation_id": "S",
+        "participation_time": "S",
+        "prize_id": "S",
+        "redeemed_prize": "M",
+        "request_id": "S",
+        "successful_burns": "L"
+      },
+      "indexes": [
+        {
+          "name": "user_and_prize_id",
+          "type": "GSI",
+          "partitionKey": "gpp_user_id",
+          "sortKey": "prize_id"
+        },
+        {
+          "name": "participationIdIndex",
+          "type": "GSI",
+          "partitionKey": "participation_id"
+        },
+        {
+          "name": "configuration_id",
+          "type": "GSI",
+          "partitionKey": "configuration_id"
+        },
+        {
+          "name": "entry_date",
+          "type": "GSI",
+          "partitionKey": "entry_date"
+        },
+        {
+          "name": "user_and_timestamp",
+          "type": "GSI",
+          "partitionKey": "gpp_user_id",
+          "sortKey": "participation_time"
+        },
+        {
+          "name": "configuration_id_and_entry_date",
+          "type": "GSI",
+          "partitionKey": "configuration_id",
+          "sortKey": "entry_date"
+        }
+      ],
+      "hasPIIData": true
+    },
+    {
+      "name": "gpp_prize_catalogue_table",
+      "partitionKey": "configuration_id",
+      "sortKey": "prize_id",
+      "attributes": {
+        "active": "BOOL",
+        "barcode_type": "N",
+        "configuration_id": "S",
+        "cost": "L",
+        "delivery_type": "N",
+        "desc": "M",
+        "entry_date": "S",
+        "img_url": "S",
+        "language_for_listing": "M",
+        "name": "M",
+        "priority": "N",
+        "prize_id": "S",
+        "redeem_desc": "M",
+        "redemption_limit": "S",
+        "redemption_link": "S",
+        "short_desc": "M",
+        "tier": "N",
+        "total_amount": "N",
+        "total_available": "N",
+        "total_claimed": "N",
+        "total_expired": "N",
+        "total_removed": "N",
+        "total_reserved": "N",
+        "tags": "L",
+        "final_state": "S",
+        "auto_upload_vouchers": "S",
+        "end_date": "N",
+        "start_date": "N",
+        "has_end_date": "S",
+        "has_expirable_moments": "BOOL",
+        "pool_prize": "BOOL"
+      },
+      "indexes": [
+        {
+          "name": "entry_date",
+          "type": "GSI",
+          "partitionKey": "entry_date"
+        },
+        {
+          "name": "totalIndex",
+          "type": "LSI",
+          "partitionKey": "configuration_id",
+          "sortKey": "total_available"
+        },
+        {
+          "name": "prizeIdIndex",
+          "type": "GSI",
+          "partitionKey": "prize_id"
+        },
+        {
+          "name": "autoUploadVouchers",
+          "type": "GSI",
+          "partitionKey": "auto_upload_vouchers"
+        },
+        {
+          "name": "endDateIndex",
+          "type": "GSI",
+          "partitionKey": "has_end_date",
+          "sortKey": "end_date"
+        }
+      ],
+      "hasPIIData": false
+    },
+    {
+      "name": "gpp_promotions_table",
+      "partitionKey": "promotion_id",
+      "attributes": {
+        "configurations": "L",
+        "creation_time": "N",
+        "digital_experience": "L",
+        "last_modified": "N",
+        "promo_type": "L",
+        "promotion_author": "S",
+        "promotion_brand": "L",
+        "promotion_bu": "S",
+        "promotion_campaign": "S",
+        "promotion_end_utc": "N",
+        "promotion_entity": "S",
+        "promotion_function": "S",
+        "promotion_id": "S",
+        "promotion_market": "S",
+        "promotion_name": "S",
+        "promotion_owner": "S",
+        "promotion_prize_type": "L",
+        "promotion_start_utc": "N",
+        "promotion_tg": "L",
+        "promotion_transaction": "BOOL"
+      },
+      "hasPIIData": false
+    },
+    {
+      "name": "gpp_transaction_table",
+      "partitionKey": "gpp_user_id",
+      "sortKey": "transaction_timestamp",
+      "attributes": {
+        "amount": "N",
+        "configuration_id": "S",
+        "currency_expiry_timestamp": "N",
+        "currency_id": "S",
+        "currency_name": "S",
+        "entry_date": "S",
+        "gpp_user_id": "S",
+        "prize_id": "S",
+        "promo_name": "S",
+        "transaction_timestamp": "N",
+        "transaction_type": "N",
+        "wallet_rolling_total": "N",
+        "valid_thru": "N"
+      },
+      "indexes": [
+        {
+          "name": "entry_date",
+          "type": "GSI",
+          "partitionKey": "entry_date"
+        },
+        {
+          "name": "currency_id",
+          "type": "GSI",
+          "partitionKey": "currency_id"
+        },
+        {
+          "name": "currency_valid_thru",
+          "type": "GSI",
+          "partitionKey": "currency_id",
+          "sortKey": "valid_thru"
+        }
+      ],
+      "hasPIIData": true
+    },
+    {
+      "name": "gpp_user_roles_table",
+      "partitionKey": "ko_id",
+      "attributes": {
+        "ko_id": "S",
+        "role": "S",
+        "configurations": "SS"
+      },
+      "hasPIIData": false
+    },
+    {
+      "name": "gpp_wallet_table",
+      "partitionKey": "gpp_user_id",
+      "sortKey": "currency_id",
+      "attributes": {
+        "amount": "N",
+        "currency_id": "S",
+        "currency_name": "S",
+        "gpp_user_id": "S",
+        "last_modified": "N"
+      },
+      "hasPIIData": true
+    },
+    {
+      "name": "participation_pincodes_table",
+      "partitionKey": "mixcodes_pincode",
+      "attributes": {
+        "mixcodes_pincode": "S",
+        "participation_id": "S"
+      },
+      "hasPIIData": false
+    },
+    {
+      "name": "winning_moments",
+      "partitionKey": "configuration_id",
+      "sortKey": "gmt_start",
+      "attributes": {
+        "configuration_id": "S",
+        "gmt_claimed": "S",
+        "gmt_start": "S",
+        "gmt_end": "N",
+        "gpp_user_id": "S",
+        "prize_id": "S",
+        "status": "S",
+        "tier": "N"
+      },
+      "indexes": [
+        {
+          "name": "gppUserIdAndPrizeIdIndex",
+          "type": "GSI",
+          "partitionKey": "gpp_user_id",
+          "sortKey": "prize_id"
+        },
+        {
+          "name": "gppUserIdAndTierIndex",
+          "type": "GSI",
+          "partitionKey": "gpp_user_id",
+          "sortKey": "tier"
+        },
+        {
+          "name": "configurationIdAndPrizeIdIndex",
+          "type": "GSI",
+          "partitionKey": "configuration_id",
+          "sortKey": "prize_id"
+        }
+      ],
+      "hasPIIData": true
+    },
+    {
+      "name": "unsuccessful_burn_attempts",
+      "partitionKey": "pincode",
+      "sortKey": "transaction_id",
+      "attributes": {
+        "configuration_id": "S",
+        "error_code": "N",
+        "error_name": "S",
+        "gpp_user_id": "S",
+        "pincode": "S",
+        "timestamp": "N",
+        "transaction_id": "S"
+      },
+      "indexes": [
+        {
+          "name": "gpp_user_id",
+          "type": "GSI",
+          "partitionKey": "gpp_user_id"
+        }
+      ],
+      "hasPIIData": true
+    },
+    {
+      "name": "expiration_wallet",
+      "partitionKey": "gpp_user_id",
+      "sortKey": "expiration_id",
+      "attributes": {
+        "amount": "N",
+        "expiration_id": "S",
+        "currency_id": "S",
+        "currency_name": "S",
+        "gpp_user_id": "S",
+        "last_modified": "N",
+        "valid_thru": "N",
+        "already_spent": "N"
+      },
+      "indexes": [
+        {
+          "name": "expiryUserAndCurrencyId",
+          "type": "GSI",
+          "partitionKey": "gpp_user_id",
+          "sortKey": "currencyId"
+        },
+        {
+          "name": "validThru",
+          "type": "GSI",
+          "partitionKey": "valid_thru"
+        },
+        {
+          "name": "queryByUserAndAlreadySpent",
+          "type": "GSI",
+          "partitionKey": "gpp_user_id",
+          "sortKey": "already_spent"
+        }
+      ],
+      "hasPIIData": true
+    },
+    {
+      "name": "gpp_clients_signature_table",
+      "partitionKey": "access_key",
+      "sortKey": "config_id",
+      "attributes": {
+      },
+      "indexes": [
+      ],
+      "hasPIIData": false
+    },
+    {
+        "name": "gpp_blocked_participations_table",
+        "partitionKey": "gpp_user_id",
+        "sortKey": "configuration_id",
+        "hasPIIData": true
+    },
+    {
+        "name": "gpp_archived_unblocked_users_table",
+        "partitionKey": "archived_id",
+        "sortKey": "gpp_user_id",
+        "indexes": [
+            {
+              "name": "gpp_user_id",
+              "type": "GSI",
+              "partitionKey": "gpp_user_id"
+            }
+          ]
+    },
+    {
+        "name": "gpp_clients_signature_table",
+        "partitionKey": "access_key",
+        "sortKey": "config_id",
+        "attributes": {
+        },
+        "indexes": [
+        ],
+        "hasPIIData": false
+    }
+  ]
+}

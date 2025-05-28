@@ -1,0 +1,69 @@
+{
+  "promotionId": 2345,
+  "authenticationRequired": true,
+  "endpoint": "https://tr96gbhyvg.execute-api.eu-west-2.amazonaws.com/jssdktest/arbiterSDK",
+  "flowLabel": "instantWin",
+  "apiKey": "49NoDt82bla69HjjcUp8x3fAT14bxopT5yu44gki",
+  "captchaSiteKey": "6LcMzpkUAAAAAOuLp1D8clYQQSqQSvL_Bf5lGQLu",
+  "locale": "default",
+  "form": {
+    "submitText": "GOGOGO!",
+    "fields": [
+      {
+        "type": "text",
+        "name": "pins",
+        "label": {
+          "default": "Insert your pin code HEREEEE",
+          "fr": "Pin Chiffre"
+        },
+        "helpText": {
+          "default": "This is some help text.",
+          "fr": "le help text"
+        },
+        "placeholder": {
+          "default": "Enter pins (comma separated)",
+          "fr": "Entrer les pins (séparés par des virgules)"
+        },
+        "validation": [
+          {
+            "rule": ".+",
+            "message": {
+              "default": "This field is required",
+              "fr": "le required"
+            }
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "name": "pp",
+        "label": {
+          "default": "Privacy Policy"
+        },
+        "options": [
+          {
+            "label": {
+              "default": "Yes"
+            },
+            "value": "true"
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "name": "tandc",
+        "label": {
+          "default": "Accept Terms and Conditions?"
+        },
+        "options": [
+          {
+            "label": {
+              "default": "Yes"
+            },
+            "value": "true"
+          }
+        ]
+      }
+    ]
+  }
+}

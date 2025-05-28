@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JS Code Migration Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      /* Custom styles for file input */
+      .file-input-container {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+      }
+      .file-input-styled {
+        border: 2px dashed #cbd5e1; /* gray-300 */
+        border-radius: 0.5rem; /* rounded-lg */
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.3s ease;
+      }
+      .file-input-styled:hover {
+        border-color: #3b82f6; /* blue-500 */
+      }
+      .file-input-styled span {
+        display: block;
+        font-size: 0.875rem; /* text-sm */
+        color: #4b5563; /* gray-600 */
+      }
+      .file-input-styled strong {
+        color: #2563eb; /* blue-600 */
+      }
+      input[type="file"]#zipFile {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+      .spinner {
+        border-top-color: #3498db;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100 flex items-center justify-center min-h-screen p-4"
+  >
+    <div
+      class="bg-slate-800 shadow-2xl rounded-xl p-6 md:p-10 w-full max-w-lg transform transition-all duration-500 hover:scale-105"
+    >
+      <header class="text-center mb-8">
+        <h1
+          class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-cyan-300"
+        >
+          JS Code Migration Analyzer
+        </h1>
+        <p class="text-slate-400 mt-2">
+          Upload a ZIP file containing your JavaScript projects.
+        </p>
+      </header>
+
+      <main>
+        <div class="mb-6">
+          <label for="zipFile" class="file-input-container w-full block">
+            <div class="file-input-styled">
+              <svg
+                class="mx-auto h-12 w-12 text-slate-500"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 48 48"
+                aria-hidden="true"
+              >
+                <path
+                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span class="mt-2"
+                ><strong>Click to upload</strong> or drag and drop</span
+              >
+              <span class="text-xs text-slate-500"
+                >ZIP files only, max 50MB (example limit)</span
+              >
+              <span
+                id="fileNameDisplay"
+                class="mt-1 text-sm font-medium text-sky-400"
+              ></span>
+            </div>
+            <input type="file" id="zipFile" accept=".zip" class="opacity-0" />
+          </label>
+        </div>
+
+        <button
+          id="uploadButton"
+          class="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Analyze Project
+        </button>
+
+        <div id="statusArea" class="mt-6 text-center hidden">
+          <div
+            id="loadingSpinner"
+            class="spinner mx-auto h-8 w-8 rounded-full border-4 border-slate-600 hidden"
+          ></div>
+          <p id="statusMessage" class="text-slate-300 text-sm mt-2"></p>
+        </div>
+
+        <div
+          id="errorArea"
+          class="mt-4 p-3 bg-red-700 bg-opacity-50 text-red-200 rounded-md hidden"
+        >
+          <p id="errorMessage" class="text-sm"></p>
+        </div>
+      </main>
+
+      <footer class="text-center mt-8 text-xs text-slate-500">
+        <p>&copy; 2024 AI Code Analyzer. Powered by Gemini.</p>
+      </footer>
+    </div>
+
+    <script>
+      const zipFileInput = document.getElementById("zipFile");
+      const uploadButton = document.getElementById("uploadButton");
+      const statusArea = document.getElementById("statusArea");
+      const loadingSpinner = document.getElementById("loadingSpinner");
+      const statusMessage = document.getElementById("statusMessage");
+      const errorArea = document.getElementById("errorArea");
+      const errorMessage = document.getElementById("errorMessage");
+      const fileNameDisplay = document.getElementById("fileNameDisplay");
+
+      // Configure your backend API URL here
+      const API_URL = "http://127.0.0.1:8000/analyze-js-zip/"; // Ensure this has a trailing slash if your FastAPI expects it
+
+      zipFileInput.addEventListener("change", () => {
+        if (zipFileInput.files.length > 0) {
+          fileNameDisplay.textContent = `Selected: ${zipFileInput.files[0].name}`;
+          hideError(); // Hide error if a new file is selected
+        } else {
+          fileNameDisplay.textContent = "";
+        }
+      });
+
+      uploadButton.addEventListener("click", handleUpload);
+
+      function showStatus(message, showSpinner = false) {
+        statusArea.classList.remove("hidden");
+        statusMessage.textContent = message;
+        if (showSpinner) {
+          loadingSpinner.classList.remove("hidden");
+        } else {
+          loadingSpinner.classList.add("hidden");
+        }
+        hideError();
+      }
+
+      function hideStatus() {
+        statusArea.classList.add("hidden");
+        statusMessage.textContent = "";
+        loadingSpinner.classList.add("hidden");
+      }
+
+      function showError(message) {
+        errorArea.classList.remove("hidden");
+        errorMessage.textContent = message;
+        hideStatus();
+      }
+
+      function hideError() {
+        errorArea.classList.add("hidden");
+        errorMessage.textContent = "";
+      }
+
+      function enableForm() {
+        uploadButton.disabled = false;
+        uploadButton.textContent = "Analyze Project";
+        zipFileInput.disabled = false;
+      }
+
+      function disableForm() {
+        uploadButton.disabled = true;
+        zipFileInput.disabled = true;
+      }
+
+      async function handleUpload() {
+        const file = zipFileInput.files[0];
+
+        if (!file) {
+          showError("Please select a ZIP file to upload.");
+          return;
+        }
+
+        if (!file.name.endsWith(".zip")) {
+          showError("Invalid file type. Only .ZIP files are allowed.");
+          return;
+        }
+
+        // Optional: Add a file size check (e.g., 50MB)
+        // const maxSizeInBytes = 50 * 1024 * 1024; // 50 MB
+        // if (file.size > maxSizeInBytes) {
+        //     showError(`File is too large. Maximum size is ${maxSizeInBytes / (1024*1024)}MB.`);
+        //     return;
+        // }
+
+        const formData = new FormData();
+        formData.append("file", file); // 'file' must match the parameter name in FastAPI
+
+        disableForm();
+        // Updated status message to be more specific during processing
+        showStatus(
+          `Processing ${file.name}... This may take a few moments.`,
+          true
+        );
+        uploadButton.textContent = "Analyzing..."; // Update button text
+
+        try {
+          const response = await fetch(API_URL, {
+            method: "POST",
+            body: formData,
+            // Headers are automatically set by fetch for FormData,
+            // including Content-Type: multipart/form-data with boundary
+          });
+
+          if (response.ok) {
+            // Check if the response is an Excel file
+            const contentType = response.headers.get("content-type");
+            if (
+              contentType &&
+              contentType.includes(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              )
+            ) {
+              showStatus("Analysis complete. Downloading report...", false);
+              const blob = await response.blob();
+              const downloadUrl = window.URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.style.display = "none";
+              a.href = downloadUrl;
+
+              // Try to get filename from Content-Disposition header
+              let downloadFilename = `gemini_analysis_${file.name.replace(
+                /\.zip$/i,
+                ""
+              )}.xlsx`;
+              const disposition = response.headers.get("content-disposition");
+              if (disposition && disposition.indexOf("attachment") !== -1) {
+                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                const matches = filenameRegex.exec(disposition);
+                if (matches != null && matches[1]) {
+                  downloadFilename = matches[1].replace(/['"]/g, "");
+                }
+              }
+              a.download = downloadFilename;
+
+              document.body.appendChild(a);
+              a.click();
+              window.URL.revokeObjectURL(downloadUrl);
+              a.remove();
+              setTimeout(() => {
+                // Give a moment for download to initiate
+                hideStatus();
+                fileNameDisplay.textContent = ""; // Clear selected file name
+                zipFileInput.value = ""; // Reset file input
+              }, 1000);
+            } else {
+              // This case should ideally not happen if backend sends error JSON for non-excel success
+              const errorText = await response.text();
+              showError(
+                `Unexpected response from server: ${errorText.substring(
+                  0,
+                  200
+                )}`
+              );
+            }
+          } else {
+            // Handle HTTP errors (4xx, 5xx)
+            let errorDetail = `HTTP error ${response.status}: ${response.statusText}`;
+            try {
+              const errorJson = await response.json();
+              if (errorJson && errorJson.detail) {
+                errorDetail = errorJson.detail;
+              }
+            } catch (e) {
+              // If response is not JSON, use the status text or raw text
+              const rawErrorText = await response.text();
+              errorDetail = rawErrorText.substring(0, 200) || errorDetail; // Show snippet or default
+              console.warn("Error response was not JSON:", rawErrorText);
+            }
+            showError(errorDetail);
+          }
+        } catch (error) {
+          console.error("Upload error:", error);
+          showError(
+            "An error occurred during upload. Check the console or network connection."
+          );
+        } finally {
+          enableForm();
+        }
+      }
+    </script>
+  </body>
+</html>

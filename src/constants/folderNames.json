@@ -1,0 +1,7 @@
+{
+    "currency": "currencyTable",
+    "promotions":"promotionsTable",
+    "participations": "participationsTable",
+    "transaction": "transactionTable",
+    "prize": "prizeCatalogueTable"
+    }

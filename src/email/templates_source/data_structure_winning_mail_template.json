@@ -1,0 +1,26 @@
+{
+  "contact": {
+    "fromName": "",
+    "fromEmail": "",
+    "toEmail": ""
+  },
+  "data": {
+    "subject": "",
+    "headerImgSrc": "",
+    "introductoryText": "",
+    "prizeName": "",
+    "prizeImgSrc": "",
+    "codeText": "",
+    "barcodeImgSrc": "",
+    "additionalText": "",
+    "signatureText": "",
+    "plainText": ""
+  },
+  "social": [],
+  "footer": {
+    "copyrightText": "",
+    "ppLink": "",
+    "tcLink": "",
+    "unsubscribeLink": ""
+  }
+}

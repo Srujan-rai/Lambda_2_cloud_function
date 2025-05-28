@@ -1,0 +1,511 @@
+{
+    "flow": {
+        "addPrize": {
+           "flowLambdas": [
+               "prizeLambda"
+           ],
+           "params": {
+               "prizeLambdaFlow": "addPrize",
+               "minUserLevel": 0
+           }
+        },
+        "uploadPrizeImages": {
+            "flowLambdas": [
+                "editPrizeImageUploadLambda"
+            ],
+            "params": {
+                "minUserLevel": 0
+            }
+        },
+        "getPrize": {
+            "flowLambdas": [
+                "prizeLambda"
+            ],
+            "params": {
+                "prizeLambdaFlow": "getPrize",
+                "minUserLevel": 0
+             }
+        },
+        "updatePrize": {
+            "flowLambdas": [
+                "prizeLambda"
+            ],
+            "params": {
+                "prizeLambdaFlow": "updatePrize",
+                "minUserLevel": 0
+            }
+        },
+        "listPrizes": {
+            "flowLambdas": [
+                "prizeQueryLambda"
+            ],
+            "params": {
+                "minUserLevel": 0
+            }
+        },
+        "getConfiguration": {
+            "flowLambdas": [
+                "configurationMetadata"
+            ],
+            "params": {
+                "minUserLevel": 0
+            }
+        },
+        "getCurrencyCodes": {
+            "flowLambdas": [
+                "currencyCodesLambda"
+            ],
+            "params": {
+                "minUserLevel": 0
+            }
+        },
+        "getPromotion": {
+            "flowLambdas": [
+                "promotionMetadata"
+            ],
+            "params": {
+                "minUserLevel": 0
+            }
+        },
+        "deletePrize": {
+            "flowLambdas": [
+                "prizeLambda"
+            ],
+            "params": {
+                "prizeLambdaFlow": "deletePrize",
+                "minUserLevel": 20
+            }
+        },
+        "configStore": {
+            "flowLambdas": [
+                "configStoreLambda"
+            ],
+            "params": {
+                "minUserLevel": 10
+            }
+        },
+        "sdkConfigStore": {
+            "flowLambdas": [
+                "configStoreLambda"
+            ],
+            "params": {
+              "minUserLevel": 10
+            }
+         },
+        "promotionCreate": {
+            "flowLambdas": [
+                "promotionCreateLambda"
+            ],
+            "params": {
+                "minUserLevel": 20
+            }
+         },
+        "replicationPackageInsertion": {
+            "flowLambdas": [
+                "ssFileUpload"
+            ],
+            "params": {
+                "maxFileSize":50000000,
+                "uploadPolicyDuration": 4000,
+                "uploadOverrideAllowed": "true",
+                "fileUploadFlow": "replicationPackageInsertion",
+                "minUserLevel": 30
+            }
+        },
+        "voucherCodesInsertion": {
+            "checkerLambdas": [
+            ],
+            "flowLambdas": [
+                "ssFileUpload"
+            ],
+            "params": {
+                "maxFileSize":50000000,
+                "uploadPolicyDuration": 4000,
+                "uploadOverrideAllowed": "true",
+                "fileUploadFlow": "voucherCSV",
+                "minUserLevel": 0
+            }
+        },
+        "bulkVoucherCodesInsertion": {
+            "checkerLambdas": [
+            ],
+            "flowLambdas": [
+                "ssFileUpload"
+            ],
+            "params": {
+                "maxFileSize":50000000,
+                "uploadPolicyDuration": 4000,
+                "uploadOverrideAllowed": "true",
+                "fileUploadFlow": "bulkUploadVoucherCSVs",
+                "minUserLevel": 0
+            }
+        },
+        "bulkPrizeInsertion": {
+            "checkerLambdas": [
+            ],
+            "flowLambdas": [
+                "ssFileUpload"
+            ],
+            "params": {
+                "maxFileSize":50000000,
+                "uploadPolicyDuration": 4000,
+                "uploadOverrideAllowed": "true",
+                "fileUploadFlow": "bulkPrizeUpload",
+                "minUserLevel": 0
+            }
+        },
+        "bulkPrizeUpdate": {
+            "checkerLambdas": [
+            ],
+            "flowLambdas": [
+                "ssFileUpload"
+            ],
+            "params": {
+                "maxFileSize":50000000,
+                "uploadPolicyDuration": 4000,
+                "uploadOverrideAllowed": "true",
+                "fileUploadFlow": "bulkPrizeUpdate",
+                "minUserLevel": 0
+            }
+        },
+        "initialWriteDigitalCodesUpload": {
+            "checkerLambdas": [
+
+            ],
+            "flowLambdas": [
+                "digitalCodesBulkUploadLambda"
+            ]
+        },
+        "winningMomentsInsertion": {
+            "flowLambdas": [
+                "ssFileUpload"
+            ],
+            "params": {
+                "maxFileSize":50000000,
+                "uploadPolicyDuration": 4000,
+                "uploadOverrideAllowed": "true",
+                "fileUploadFlow": "winningMomentCsv",
+                "minUserLevel": 20
+            }
+        },
+        "prizeImageUpload": {
+            "checkerLambdas": [
+            ],
+            "flowLambdas": [
+                "ssFileUpload"
+            ],
+            "params": {
+                "maxFileSize":15000000,
+                "uploadPolicyDuration": 4000,
+                "uploadOverrideAllowed": "true",
+                "fileUploadFlow": "prizeImageUpload",
+                "minUserLevel": 0
+            }
+        },
+        "imageUploadParticipation": {
+            "checkerLambdas": [
+            ],
+            "flowLambdas": [
+                "ssFileUpload"
+            ],
+            "params": {
+                "maxFileSize":15000000,
+                "uploadPolicyDuration": 4000,
+                "uploadOverrideAllowed": "true",
+                "fileUploadFlow": "imageUploadParticipation",
+                "minUserLevel": 0
+            }
+        },
+        "currencyIconUpload": {
+            "flowLambdas": [
+                "ssFileUpload"
+            ],
+            "params": {
+                "maxFileSize":300000,
+                "uploadPolicyDuration": 4000,
+                "uploadOverrideAllowed": "true",
+                "fileUploadFlow": "currencyIconUpload",
+                "minUserLevel": 0
+            }
+        },
+        "additionalInformationImageUpload": {
+            "checkerLambdas": [
+            ],
+            "flowLambdas": [
+                "ssFileUpload"
+            ],
+            "params": {
+                "maxFileSize":15000000,
+                "uploadPolicyDuration": 4000,
+                "uploadOverrideAllowed": "true",
+                "fileUploadFlow": "additionalInformationImageUpload",
+                "minUserLevel": 10
+            }
+        },
+        "getUserTransactions": {
+            "flowLambdas": [
+                "analysisLambda"
+            ],
+            "params": {
+                "analysisLambdaFlowParams": {
+                    "showTableColumns": true
+                },
+                "minUserLevel": 5
+            }
+        },
+        "getParticipation": {
+            "flowLambdas": [
+                "analysisLambda"
+            ],
+            "params": {
+                "analysisLambdaFlowParams": {
+                    "showTableColumns": true
+                },
+                "minUserLevel": 5
+            }
+        },
+        "getPincodesParticipation": {
+            "flowLambdas": [
+                "analysisLambda"
+            ],
+            "params": {
+                "analysisLambdaFlowParams": {
+                    "showTableColumns": true
+                },
+                "minUserLevel": 5
+            }
+        },
+        "exportParticipations": {
+            "flowLambdas": [
+                "exportParticipationsLambda"
+            ],
+            "params": {
+                "minUserLevel": 5
+            }
+        },
+        "getDigitalCodes": {
+            "flowLambdas": [
+                "analysisLambda"
+            ],
+            "params": {
+                "analysisLambdaFlowParams": {
+                    "showTableColumns": true
+                },
+                "minUserLevel": 5
+            }
+        },
+        "exportGDPRUserData": {
+            "flowLambdas": [
+                "analysisLambda"
+            ],
+            "params": {
+                "analysisLambdaFlowParams": {
+                    "queryParams": "gpp_user_id",
+                    "exportToCSV": true,
+                    "removeNotUserPII": true
+                },
+                "minUserLevel": 0
+            }
+        },
+        "getAllCurrencies": {
+            "flowLambdas": [
+                "currenciesLambda"
+            ],
+            "params": {
+                "currenciesProviderLambdaFlow": "getAllCurrencies",
+                "minUserLevel": 0
+            }
+        },
+        "getCurrenciesByIds": {
+            "flowLambdas": [
+                "currenciesLambda"
+            ],
+            "params": {
+                "currenciesProviderLambdaFlow": "getCurrenciesByIds",
+                "minUserLevel": 0
+            }
+        },
+        "addEmailTemplate": {
+            "flowLambdas": [
+                "emailTemplateLambda"
+            ],
+            "params": {
+                "emailTemplateLambdaFlow": "addEmailTemplate",
+                "minUserLevel": 20
+            }
+        },
+        "uploadImagesEmailTemplate": {
+            "flowLambdas": [
+                "emailTemplateLambda"
+            ],
+            "params": {
+                "emailTemplateLambdaFlow": "uploadImagesEmailTemplate",
+                "minUserLevel": 20
+            }
+        },
+        "getEmailTemplate": {
+            "flowLambdas": [
+                "emailTemplateLambda"
+            ],
+            "params": {
+                "emailTemplateLambdaFlow": "getEmailTemplate",
+                "minUserLevel": 0
+            }
+        },
+        "updateEmailTemplate": {
+            "flowLambdas": [
+                "emailTemplateLambda"
+            ],
+            "params": {
+                "emailTemplateLambdaFlow": "updateEmailTemplate",
+                "minUserLevel": 20
+            }
+        },
+        "updateImagesEmailTemplate": {
+            "flowLambdas": [
+                "emailTemplateLambda"
+            ],
+            "params": {
+                "emailTemplateLambdaFlow": "updateImagesEmailTemplate",
+                "minUserLevel": 20
+            }
+        },
+        "getAllEmailTemplates": {
+            "flowLambdas": [
+                "emailTemplatesLambda"
+            ],
+            "params": {
+                "minUserLevel": 0
+            }
+        },
+        "listCurrencyAllocationRules": {
+            "flowLambdas": [
+                "currencyAllocationRulesUtilitiesLambda"
+            ],
+            "params": {
+                "currencyAllocationFlow": "list",
+                "minUserLevel": 0
+            }
+        },
+        "addCurrencyAllocationRule": {
+            "flowLambdas": [
+                "currencyAllocationRulesUtilitiesLambda"
+            ],
+            "params": {
+                "currencyAllocationFlow": "add",
+                "minUserLevel": 1
+            }
+        },
+        "editCurrencyAllocationRule": {
+            "flowLambdas": [
+                "currencyAllocationRulesUtilitiesLambda"
+            ],
+            "params": {
+                "currencyAllocationFlow": "edit",
+                "minUserLevel": 1
+            }
+        },
+        "generateMoments": {
+            "flowLambdas": ["winningMomentsGenerator"],
+            "params": {
+                "prizeDistributionDefect": 20,
+                "timestampDistributionDefect": 100,
+                "minUserLevel": 20
+            }
+        },
+        "generateTimestamps": {
+            "flowLambdas": [
+                "timestampsGeneratorLambda"
+            ],
+            "params": {
+                "minUserLevel": 20
+            }
+        },
+        "addGdprRequest": {
+            "flowLambdas": ["addGdprRequestLambda"],
+            "params": {
+                "minUserLevel": 20
+            }
+        },
+        "removeDigitalCodes": {
+            "flowLambdas": ["digitalCodesRemoverLambda"],
+            "params": {
+                "minUserLevel": 20
+            }
+        },
+        "consumerBlocking": {
+            "flowLambdas": ["consumerBlockingLambda"],
+            "params": {
+                "consumerBlockingLambdaFlow": "blockUser",
+                "minUserLevel": 5
+            }
+        },
+        "consumerUnblocking": {
+            "flowLambdas": ["consumerBlockingLambda"],
+            "params": {
+                "consumerBlockingLambdaFlow": "unblockUser",
+                "minUserLevel": 5
+            }
+        },
+        "blockedConsumerList": {
+            "flowLambdas": ["consumerBlockingLambda"],
+            "params": {
+                "consumerBlockingLambdaFlow": "blockUserList",
+                "minUserLevel": 5
+            }
+        },
+        "checkPrizeCounters": {
+          "flowLambdas": ["prizeCounterCheckerLambda"],
+          "params": {
+              "minUserLevel": 0
+          }
+        },
+        "currencyCreation": {
+          "flowLambdas": ["databaseOperationsHandlerLambda"],
+          "params": {
+              "minUserLevel": 20,
+              "tableHandler": "currencyDatabase",
+              "dbOperationType": "put",
+              "additionalFunctionParams": [true]
+          }
+        },
+        "getUserRole": {
+            "flowLambdas": [
+                "analysisLambda"
+            ],
+            "params": {
+                "analysisLambdaFlowParams": {
+                    "showTableColumns": false
+                },
+                "minUserLevel": 0
+            }
+        },
+        "updateUserRole": {
+            "flowLambdas": [
+                "databaseOperationsHandlerLambda"
+            ],
+            "params": {
+                "tableHandler": "userRolesTable",
+                "dbOperationType": "update",
+                "minUserLevel": 40
+            }
+        },
+        "downloadReplication": {
+            "flowLambdas": [
+                "downloadReplicationLambda"
+            ],
+            "params": {
+                "minUserLevel": 30
+            }
+        },
+        "uploadReplication": {
+            "flowLambdas": [
+                "uploadReplicationLambda"
+            ],
+            "params": {
+                "minUserLevel": 30
+            }
+        }
+    },
+    "GPPConfigVersion": 1
+ }

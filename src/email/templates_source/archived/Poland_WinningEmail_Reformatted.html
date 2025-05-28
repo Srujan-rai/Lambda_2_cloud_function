@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Coca-Cola</title>
+    <style type="text/css">
+        body {
+            background-color: #f6f6f6;
+            color: #121212;
+            width: 100%;
+        }
+
+        div {
+            background-color: #fff;
+            max-width: 580px;
+            margin: 0 auto !important;
+            font-family: sans-serif;
+        }
+
+        table {
+            width: 324px;
+        }
+
+        td {
+            font-family: sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .footer {
+            clear: both;
+            margin-top: 10px;
+            text-align: center;
+            max-width: 580px;
+            display: block;
+            margin: 0 auto !important;
+        }
+
+        .footer a,
+        .footer p,
+        .footer span,
+        .footer td {
+            font-size: 12px;
+            text-align: center
+        }
+    </style>
+
+</head>
+
+<body>
+    <div>
+        <table align="center">
+            {{#if data.headerImgSrc}}
+            <tr align="center">
+                <td><img alt="Promo Header" src="{{data.headerImgSrc}}"></td>
+            </tr>
+            {{/if}}
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            {{#if data.introductoryText}}
+            <tr align="center">
+                <td>{{data.introductoryText}}</td>
+            </tr>
+            {{/if}}
+            <tr>
+                <td>&nbsp;</td>
+            </tr>
+            {{#if data.prizeImgSrc}}
+            <table align="center">
+                <tr>
+                    <th style="padding-right: 5px;" rowspan="4"><img alt="Prize Image" width="100px"src="{{data.prizeImgSrc}}"></th>
+                    {{#if data.prizeName}}
+                    <td style="font-size: 24px; font-weight: 700">{{data.prizeName}}</td>
+                    {{/if}}
+                </tr>
+                {{#if data.shortDescription}}
+                <tr>
+                    <td style="font-weight: 600; color: grey;">{{data.shortDescription}}</td>
+                </tr>
+                {{/if}}
+                {{#if data.expiryDate}}
+                <tr>
+                    <td style=" font-weight: 600; color: red">{{data.expiryLabel}} {{data.expiryDate}}</td>
+                </tr>
+                {{/if}}
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+
+            </table>
+            {{/if}}
+
+            <table align="center">
+                {{#if data.redeemDescription}}
+                <tr>
+                    <td align="center" style="font-weight: 300">{{data.redeemDescription}}</td>
+                </tr>
+                {{/if}}
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+                {{#if data.codeText}}
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td align="center" style="font-size:24px;font-weight:700;color: red;">{{data.codeText}}</td>
+                </tr>
+                {{/if}}
+                {{#if data.barcodeImgSrc}}
+                <tr>
+                    <td align="center"><img alt="Barcode Image" src="{{data.barcodeImgSrc}}"></td>
+                </tr>
+                {{/if}}
+
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+                {{#if data.additionalText}}
+                <tr align="center">
+                    <td>{{data.additionalText}}</td>
+                </tr>
+                {{/if}}
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+                {{#if data.signatureText}}
+                <tr>
+                    <td align="center">{{data.signatureText}}</td>
+                </tr>
+                {{/if}}
+            </table>
+        </table>
+    </div>
+
+    <tr>
+        <td>&nbsp;</td>
+    </tr>
+    <div class="footer" style="background-color: #f6f6f6;">
+        <table align="center" role="presentation" border="0" cellpadding="0" cellspacing="0">
+            {{#if social}}
+            <tr>
+                <td style="padding:20px 0 10px" align="center">
+                    <table cellspacing="0" cellpadding="0" border="0">
+                        <tbody>
+                            <tr>
+                                <td align="center">{{#each social}} <a href="{{btnLink}}" target="_blank"
+                                        style="padding:5px"><img src="{{imgSrc}}" class="CToWUd" width="32" height="32"
+                                            border="0">
+                                    </a>{{/each}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            {{/if}}
+
+            <tr>
+                <td class="content-block coca-link">
+                    {{#if footer.copyrightText}}
+                    <span class="">{{footer.copyrightText}}</span>
+                    {{/if}}
+                    <p>
+                        {{#if footer.ppLink}}
+                        <a href="{{footer.ppLink}}" style="padding:0 5px">Privacy policy</a>
+                        {{/if}}
+                        {{#if footer.tcLink}}
+                        <a href="{{footer.tcLink}}" style="padding:0 5px">Terms and Conditions</a>
+                        {{/if}}
+                    </p>
+                    {{#if footer.unsubscribeLink}}
+                    <p>Don't like these emails? <a href="{{footer.unsubscribeLink}}">Unsubscribe</a></p>.
+                    {{/if}}
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>

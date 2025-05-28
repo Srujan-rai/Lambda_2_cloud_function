@@ -1,0 +1,8 @@
+{
+  "Source": "milen.tonev@endava.com",
+  "Template": "WinningMailTemplate",
+  "Destination": {
+    "ToAddresses": [ "milen.tonev@endava.com" ]
+  },
+  "TemplateData": "{\r\n  \"contact\": {\r\n    \"fromName\": \"Milen Tonev\",\r\n    \"fromEmail\": \"milen.tonev@endava.com\",\r\n    \"toEmail\": \"milen.tonev@endava.com\"\r\n  },\r\n  \"data\": {\r\n    \"subject\": \"AWS SES Test\",\r\n    \"headerImgSrc\": \"https:\/\/promo.coca-cola.com.sg\/assets\/email\/images\/email-header-pr.jpg\",\r\n    \"introductoryText\": \"Hello,<br><br>Thank you for participating in our promotion!<br>Congratulations, you have won\",\r\n    \"prizeName\": \"The Prize\",\r\n    \"prizeImgSrc\": \"http:\/\/www.differencebetween.info\/sites\/default\/files\/images\/2\/award.jpg\",\r\n    \"codeText\": \"PRIZECODE123\",\r\n    \"barcodeImgSrc\": \"https:\/\/www.barcodelookup.com\/assets\/images\/barcode-scan.jpg\",\r\n    \"additionalText\": \"This is the promo additional text!\",\r\n    \"signatureText\": \"This is a promo text!\",\r\n    \"plainText\": \"NOT USED FOR NOW BUT SUPPORTED BY TEMPLATE\"\r\n  },\r\n  \"social\": [\r\n    {\r\n      \"imgSrc\": \"https:\/\/s3.eu-west-2.amazonaws.com\/gpp-public-bucket-milen\/facebook48x48.png\",\r\n      \"btnLink\": \"#\"\r\n    },\r\n    {\r\n      \"imgSrc\": \"https:\/\/s3.eu-west-2.amazonaws.com\/gpp-public-bucket-milen\/instagram48x48.png\",\r\n      \"btnLink\": \"#\"\r\n    }\r\n  ],\r\n  \"footer\": {\r\n    \"copyrightText\": \"\u00A92019 THE COCA-COLA COMPANY. ALL RIGHTS RESERVED.\",\r\n    \"ppLink\": \"https:\/\/app.coca-cola.com\/privacy\/CH\/\",\r\n    \"tcLink\": \"https:\/\/app.coca-cola.com\/tos\/CH\/\",\r\n    \"unsubscribeLink\": \"NOT USED FOR NOW BUT SUPPORTED BY TEMPLATE\"\r\n  }\r\n}"
+}
