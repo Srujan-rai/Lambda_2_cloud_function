@@ -251,11 +251,7 @@ def run_analysis_pipeline(extracted_js_root_path: str) -> str | None:
 app = FastAPI(title="Gemini JS Code Analyzer API")
 
 # --- CORS Middleware Configuration ---
-origins = [
-    "http://127.0.0.1:5500", # Your frontend origin
-    "http://localhost:5500", # Another common way to access local frontend
-    # Add other origins if needed, e.g., your deployed frontend URL
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
